@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "679221e0-18ef-44bd-978e-c6ba686aa9d5",
+  "path": "baoyu-markdown-to-html",
+  "path_key": "baoyu-markdown-to-html",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

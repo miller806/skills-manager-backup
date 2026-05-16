@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "18fec043-c66b-4479-adb1-7cc2751f4fd5",
+  "path": "baoyu-article-illustrator",
+  "path_key": "baoyu-article-illustrator",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

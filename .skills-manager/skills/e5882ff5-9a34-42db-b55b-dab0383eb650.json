@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "e5882ff5-9a34-42db-b55b-dab0383eb650",
+  "path": "baoyu-diagram",
+  "path_key": "baoyu-diagram",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "780b5393-0cdf-45c1-8b00-4196384e38a7",
+  "path": "baoyu-xhs-images",
+  "path_key": "baoyu-xhs-images",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

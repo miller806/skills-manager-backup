@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "6bfc771b-fb3d-4bdb-a91a-b1fa70a629e0",
+  "path": "baoyu-youtube-transcript",
+  "path_key": "baoyu-youtube-transcript",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}
