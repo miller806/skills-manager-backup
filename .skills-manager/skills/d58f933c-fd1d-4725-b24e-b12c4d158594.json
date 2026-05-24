@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "d58f933c-fd1d-4725-b24e-b12c4d158594",
+  "path": "ant-design",
+  "path_key": "ant-design",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "skillssh",
+    "ref": "ant-design/antd-skill/ant-design",
+    "subpath": "skills\\ant-design",
+    "branch": null
+  }
+}
