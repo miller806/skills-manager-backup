@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "7af5b8c6-d0aa-49ad-9cde-65f351c6c68a",
+  "path": "hyperframes-registry",
+  "path_key": "hyperframes-registry",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "skillssh",
+    "ref": "heygen-com/hyperframes/hyperframes-registry",
+    "subpath": "skills\\hyperframes-registry",
+    "branch": null
+  }
+}

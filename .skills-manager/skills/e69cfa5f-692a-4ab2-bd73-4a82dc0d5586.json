@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "e69cfa5f-692a-4ab2-bd73-4a82dc0d5586",
+  "path": "lottie",
+  "path_key": "lottie",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "skillssh",
+    "ref": "heygen-com/hyperframes/lottie",
+    "subpath": "skills\\lottie",
+    "branch": null
+  }
+}

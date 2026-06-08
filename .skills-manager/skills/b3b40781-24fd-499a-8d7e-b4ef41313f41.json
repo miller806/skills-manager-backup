@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "b3b40781-24fd-499a-8d7e-b4ef41313f41",
+  "path": "animejs",
+  "path_key": "animejs",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "skillssh",
+    "ref": "heygen-com/hyperframes/animejs",
+    "subpath": "skills\\animejs",
+    "branch": null
+  }
+}

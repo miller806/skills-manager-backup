@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "19d85464-3eab-4138-8688-318913faadaa",
+  "path": "css-animations",
+  "path_key": "css-animations",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "skillssh",
+    "ref": "heygen-com/hyperframes/css-animations",
+    "subpath": "skills\\css-animations",
+    "branch": null
+  }
+}

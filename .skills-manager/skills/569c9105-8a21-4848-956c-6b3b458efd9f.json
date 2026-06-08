@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "569c9105-8a21-4848-956c-6b3b458efd9f",
+  "path": "ui-ux-pro-max",
+  "path_key": "ui-ux-pro-max",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "skillssh",
+    "ref": "kimny1143/claude-code-template/ui-ux-pro-max",
+    "subpath": ".claude\\skills\\ui-ux-pro-max",
+    "branch": null
+  }
+}
