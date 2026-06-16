@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "scenario_id": "b053d68b-11a2-4af1-90c2-ec3f035e55f6",
-  "name": "Default",
+  "name": "SurperPowers",
   "description": "Default startup scenario",
-  "icon": null,
+  "icon": "briefcase",
   "sort_order": 0
 }

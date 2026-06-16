@@ -8,7 +8,7 @@
   "source": {
     "type": "skillssh",
     "ref": "heygen-com/hyperframes/animejs",
-    "subpath": "skills\\animejs",
+    "subpath": "skills",
     "branch": null
   }
 }

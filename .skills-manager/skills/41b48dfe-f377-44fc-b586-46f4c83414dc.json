@@ -8,7 +8,7 @@
   "source": {
     "type": "skillssh",
     "ref": "heygen-com/hyperframes/waapi",
-    "subpath": "skills\\waapi",
+    "subpath": "skills",
     "branch": null
   }
 }
