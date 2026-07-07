@@ -8,7 +8,7 @@
   "source": {
     "type": "skillssh",
     "ref": "heygen-com/hyperframes/hyperframes-media",
-    "subpath": "skills\\hyperframes-media",
+    "subpath": "skills",
     "branch": null
   }
 }
