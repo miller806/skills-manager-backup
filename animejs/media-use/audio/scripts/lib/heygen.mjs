@@ -9,6 +9,7 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
 export const HEYGEN_BASE = "https://api.heygen.com/v3";
+export const HEYGEN_CLI_SOURCE_HEADERS = { "X-HeyGen-Source": "cli" };
 
 // Walk up ≤5 dirs from startDir; load the first .env (shell env always wins).
 export function loadEnvFromDir(startDir) {
@@ -68,10 +69,27 @@ export function heygenCredential() {
   return null;
 }
 
+// → "oauth" | "api_key" | null. Same oauth-vs-api-key check heygenAuthHeaders()
+// makes internally, exposed on its own so callers that only need to *tag* the
+// auth path (telemetry) don't have to parse headers back apart. Never throws:
+// no credential (or an expired one) is just `null`, same as a fresh resolve
+// with nothing to tag.
+export function heygenAuthMethod() {
+  const cred = heygenCredential();
+  if (!cred?.headers) return null;
+  return "Authorization" in cred.headers ? "oauth" : "api_key";
+}
+
 // → auth headers object, or throw with a fix hint.
 export function heygenAuthHeaders() {
   const cred = heygenCredential();
-  if (cred?.headers) return cred.headers;
+  if (cred?.headers) {
+    // Only tag OAuth (Bearer) traffic as cli-source — the backend uses it to
+    // grant the free allowance for OAuth requests and ignores it for API-key
+    // (X-Api-Key) traffic, where it's dead metadata.
+    const isOauth = "Authorization" in cred.headers;
+    return isOauth ? { ...cred.headers, ...HEYGEN_CLI_SOURCE_HEADERS } : { ...cred.headers };
+  }
   if (cred?.expired)
     throw new Error(
       "HeyGen OAuth token expired — run `npx hyperframes auth refresh` (or `npx hyperframes auth login`)",
