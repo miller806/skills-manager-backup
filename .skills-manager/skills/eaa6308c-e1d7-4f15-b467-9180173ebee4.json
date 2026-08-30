@@ -8,7 +8,7 @@
   "source": {
     "type": "skillssh",
     "ref": "othmanadi/planning-with-files/planning-with-files-zh",
-    "subpath": "skills\\planning-with-files-zh",
+    "subpath": "skills\\i18n\\planning-with-files-zh",
     "branch": null
   }
 }
