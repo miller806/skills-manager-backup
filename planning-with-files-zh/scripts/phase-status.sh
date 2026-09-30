@@ -4,9 +4,12 @@
 # This is the ONLY sanctioned concurrent-safe writer of task_plan.md status
 # lines. The orchestrator owns task_plan.md; workers NEVER edit it directly.
 # All status edits go through this read-modify-write under the portable
-# <plan-dir>/.pwf-locks/phase-status.lock directory lock, with an atomic
-# temp-file + mv swap so a torn write can never leave a half-rewritten plan on
-# disk (architecture C4).
+# <plan-dir>/.pwf-locks/phase-status.lock namespace. Lock ownership is the
+# atomic no-clobber creation of its .owner file; the directory's mkdir exit
+# status is only provisional because some Windows-native implementations can
+# report success to two simultaneous creators. The plan rewrite still uses an
+# atomic temp-file + mv swap so a torn write can never leave a half-rewritten
+# plan on disk (architecture C4).
 #
 # Note: editing task_plan.md changes its SHA, so the orchestrator must
 # re-attest at phase boundaries (see attest-plan.sh).
@@ -39,6 +42,12 @@ resolve_plan_file() {
     if [ -n "${plan_dir}" ] && [ -f "${plan_dir}/task_plan.md" ]; then
         printf "%s\n" "${plan_dir}/task_plan.md"
         return 0
+    fi
+    # Explicit selectors are bindings, not hints (issue #237). This script
+    # WRITES a phase status into the plan it picks, so a cwd fallback after a
+    # rejected selector edits a different plan than the operator named.
+    if [ -n "${PLAN_ID:-}" ] || [ -n "${PWF_PLAN_ROOT:-}" ]; then
+        return 1
     fi
     if [ -f "./task_plan.md" ]; then
         printf "%s\n" "./task_plan.md"
@@ -73,7 +82,11 @@ case "${NEW_STATUS}" in
 esac
 
 PLAN_FILE="$(resolve_plan_file)" || {
-    printf "[phase-status] No task_plan.md found. Create a plan first.\n" >&2
+    if [ -n "${PLAN_ID:-}" ] || [ -n "${PWF_PLAN_ROOT:-}" ]; then
+        printf "[phase-status] An explicit PLAN_ID or PWF_PLAN_ROOT did not resolve to a plan; nothing was written and no other plan was substituted.\n" >&2
+    else
+        printf "[phase-status] No task_plan.md found. Create a plan first.\n" >&2
+    fi
     exit 1
 }
 
@@ -96,6 +109,22 @@ release_lock() {
     LOCK_ACQUIRED=0
 }
 
+claim_lock_owner() {
+    owner_file="${LOCK_DIR}/.owner"
+    # POSIX noclobber makes this redirection an exclusive create. This is the
+    # actual ownership decision: a Windows-native mkdir may report success
+    # after another process won the directory-creation race (issue #281).
+    if (
+        umask 077
+        set -C
+        printf '%s\n' "${LOCK_TOKEN}" > "${owner_file}"
+    ) 2>/dev/null; then
+        LOCK_ACQUIRED=1
+        return 0
+    fi
+    return 1
+}
+
 acquire_lock() {
     mkdir -p "${LOCK_ROOT}" 2>/dev/null || {
         printf "[phase-status] Cannot create lock root %s.\n" "${LOCK_ROOT}" >&2
@@ -104,7 +133,13 @@ acquire_lock() {
     LOCK_TOKEN="phase-status-$$-$(date +%s 2>/dev/null || printf 0)"
     started_at="$(date +%s 2>/dev/null || printf 0)"
     attempts=0
-    while ! mkdir "${LOCK_DIR}" 2>/dev/null; do
+    while :; do
+        # Directory creation is intentionally idempotent. The exclusive owner
+        # file below, not this external utility's exit status, grants the lock.
+        mkdir "${LOCK_DIR}" 2>/dev/null || true
+        if [ -d "${LOCK_DIR}" ] && claim_lock_owner; then
+            return 0
+        fi
         attempts=$((attempts + 1))
         now="$(date +%s 2>/dev/null || printf 0)"
         if { [ "${started_at}" -gt 0 ] 2>/dev/null \
@@ -115,13 +150,6 @@ acquire_lock() {
         fi
         sleep 0.1
     done
-    if ! printf '%s\n' "${LOCK_TOKEN}" > "${LOCK_DIR}/.owner" 2>/dev/null; then
-        rmdir "${LOCK_DIR}" 2>/dev/null || true
-        printf "[phase-status] Cannot record lock ownership in %s.\n" "${LOCK_DIR}" >&2
-        return 1
-    fi
-    LOCK_ACQUIRED=1
-    return 0
 }
 
 trap 'release_lock' EXIT
