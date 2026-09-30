@@ -1,18 +1,24 @@
 import { describe, test, expect, beforeAll, afterAll } from 'bun:test';
+import { JUDGE_MS, CAPTURE_MS, CAPTURE_LONG_MS, PTY_MS } from './helpers/eval-budgets';
 import { runSkillTest } from './helpers/session-runner';
+import { EvalCollector } from './helpers/eval-store';
+import { OFFICE_HOURS_BUN_GRACE_MS, runRecordedOfficeHoursAttempt } from './helpers/office-hours-attempt';
 import {
   ROOT, browseBin, runId, evalsEnabled,
   describeIfSelected, testConcurrentIfSelected,
   copyDirSync, setupBrowseShims, logCost, recordE2E,
-  createEvalCollector, finalizeEvalCollector,
+  finalizeEvalCollector,
 } from './helpers/e2e-helpers';
 import { judgePosture } from './helpers/llm-judge';
+import { extractSkillSections } from './helpers/skill-fixture';
+import { buildCodexOfferingPrompt } from './helpers/codex-offering-fixture';
+import { validateOfficeHoursSpecSummary } from './helpers/office-hours-completion';
 import { spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
-const evalCollector = createEvalCollector('e2e-plan');
+const evalCollector = evalsEnabled ? new EvalCollector('e2e', undefined, 'plan') : null;
 
 // --- Plan CEO Review E2E ---
 
@@ -81,7 +87,10 @@ Write your complete review directly to ${planDir}/review-output.md
 Focus on reviewing the plan content: architecture, error handling, security, and performance.`,
       workingDirectory: planDir,
       maxTurns: 15,
-      timeout: 360_000,
+      // 540s: the evidence-before-claimed-limitations directive and the
+      // design-doc discovery block (fork port wave 2) add real probing turns;
+      // main cleared this at 243s, the enriched skill needs more headroom.
+      timeout: 540_000,
       testName: 'plan-ceo-review',
       runId,
       model: 'claude-opus-4-7',
@@ -100,7 +109,7 @@ Focus on reviewing the plan content: architecture, error handling, security, and
       const review = fs.readFileSync(reviewPath, 'utf-8');
       expect(review.length).toBeGreaterThan(200);
     }
-  }, 420_000);
+  }, PTY_MS);
 });
 
 // --- Plan CEO Review (SELECTIVE EXPANSION) E2E ---
@@ -168,7 +177,7 @@ Write your complete review directly to ${planDir}/review-output-selective.md
 Focus on reviewing the plan content: architecture, error handling, security, and performance.`,
       workingDirectory: planDir,
       maxTurns: 15,
-      timeout: 360_000,
+      timeout: CAPTURE_LONG_MS,
       testName: 'plan-ceo-review-selective',
       runId,
       model: 'claude-opus-4-7',
@@ -185,7 +194,7 @@ Focus on reviewing the plan content: architecture, error handling, security, and
       const review = fs.readFileSync(reviewPath, 'utf-8');
       expect(review.length).toBeGreaterThan(200);
     }
-  }, 420_000);
+  }, PTY_MS);
 });
 
 // --- Plan CEO Review SCOPE EXPANSION energy (V1.1 mode-posture regression gate) ---
@@ -231,12 +240,12 @@ describeIfSelected('Plan CEO Review Expansion Energy E2E', ['plan-ceo-review-exp
 
 Read plan.md — that's the plan to review. This is a standalone plan document, not a codebase — skip any codebase exploration or system audit steps.
 
-Choose SCOPE EXPANSION mode. Skip any AskUserQuestion calls — this is non-interactive. Auto-approve the ideal-architecture approach in 0C-bis. For 0D, run all three analyses (10x check, platonic ideal, delight opportunities), then emit exactly 2 concrete expansion proposals in the opt-in ceremony.
+Choose SCOPE EXPANSION mode. Skip any AskUserQuestion calls — this is non-interactive. Auto-approve the ideal-architecture approach in Alternatives. For Mode-Specific Analysis, run all three analyses (10x check, platonic ideal, delight opportunities), then emit exactly 2 concrete expansion proposals in the opt-in ceremony.
 
 Write your expansion proposals to ${planDir}/proposals.md with ONLY the proposal text — no conversational wrapper, no review summary, no mode analysis. Each proposal separated by "---".`,
       workingDirectory: planDir,
       maxTurns: 15,
-      timeout: 360_000,
+      timeout: CAPTURE_LONG_MS,
       testName: 'plan-ceo-review-expansion-energy',
       runId,
       model: 'claude-opus-4-7',
@@ -267,7 +276,7 @@ Write your expansion proposals to ${planDir}/proposals.md with ONLY the proposal
     // Pass threshold: 4/5 on both axes (good — matches posture with minor weakness).
     expect(scores.axis_a).toBeGreaterThanOrEqual(4);  // surface_framing
     expect(scores.axis_b).toBeGreaterThanOrEqual(4);  // decision_preservation
-  }, 600_000);
+  }, CAPTURE_LONG_MS);
 });
 
 // --- Plan Eng Review E2E ---
@@ -345,7 +354,7 @@ Write your complete review directly to ${planDir}/review-output.md
 Focus on architecture, code quality, tests, and performance sections.`,
       workingDirectory: planDir,
       maxTurns: 15,
-      timeout: 360_000,
+      timeout: CAPTURE_LONG_MS,
       testName: 'plan-eng-review',
       runId,
       model: 'claude-opus-4-7',
@@ -363,7 +372,7 @@ Focus on architecture, code quality, tests, and performance sections.`,
       const review = fs.readFileSync(reviewPath, 'utf-8');
       expect(review.length).toBeGreaterThan(200);
     }
-  }, 420_000);
+  }, CAPTURE_LONG_MS);
 });
 
 // --- Plan-Eng-Review Test-Plan Artifact E2E ---
@@ -473,7 +482,7 @@ Write your review to ${planDir}/review-output.md`,
       workingDirectory: planDir,
       maxTurns: 25,
       allowedTools: ['Bash', 'Read', 'Write', 'Glob', 'Grep'],
-      timeout: 360_000,
+      timeout: CAPTURE_LONG_MS,
       testName: 'plan-eng-review-artifact',
       runId,
       model: 'claude-opus-4-7',
@@ -504,7 +513,7 @@ Write your review to ${planDir}/review-output.md`,
     if (newFiles.length === 0) {
       console.warn('SOFT FAIL: No test-plan artifact written — agent did not follow artifact instructions');
     }
-  }, 420_000);
+  }, CAPTURE_LONG_MS);
 });
 
 // --- Office Hours Spec Review E2E ---
@@ -524,13 +533,18 @@ describeIfSelected('Office Hours Spec Review E2E', ['office-hours-spec-review'],
     run('git', ['add', '.']);
     run('git', ['commit', '-m', 'init']);
 
-    // Copy office-hours skill
+    // This case explains the review procedure. Extract its actual section;
+    // the dedicated full-workflow case exercises skeleton/section discovery.
     fs.mkdirSync(path.join(ohDir, 'office-hours'), { recursive: true });
-    fs.copyFileSync(
-      path.join(ROOT, 'office-hours', 'SKILL.md'),
-      path.join(ohDir, 'office-hours', 'SKILL.md'),
+    const fixturePath = path.join(ohDir, 'office-hours', 'spec-review.md');
+    // The extractor requires the entry's real frontmatter. Recombine the entry
+    // and carved body locally, then keep only the review section for the model.
+    fs.writeFileSync(
+      fixturePath,
+      fs.readFileSync(path.join(ROOT, 'office-hours/SKILL.md'), 'utf-8') + '\n'
+        + fs.readFileSync(path.join(ROOT, 'office-hours/sections/design-and-handoff.md'), 'utf-8'),
     );
-    { const _sec = path.join(ROOT, 'office-hours', 'sections'); if (fs.existsSync(_sec)) fs.cpSync(_sec, path.join(ohDir, 'office-hours', 'sections'), { recursive: true }); }
+    fs.writeFileSync(fixturePath, extractSkillSections(fixturePath, ['Spec Review Loop']));
   });
 
   afterAll(() => {
@@ -539,7 +553,7 @@ describeIfSelected('Office Hours Spec Review E2E', ['office-hours-spec-review'],
 
   testConcurrentIfSelected('office-hours-spec-review', async () => {
     const result = await runSkillTest({
-      prompt: `Read office-hours/SKILL.md. I want to understand the spec review loop.
+      prompt: `Read office-hours/spec-review.md. This is a documentation question: explain the procedure without executing office hours.
 
 Summarize what the "Spec Review Loop" section does — specifically:
 1. How many dimensions does the reviewer check?
@@ -549,24 +563,32 @@ Summarize what the "Spec Review Loop" section does — specifically:
 
 Write your summary to ${ohDir}/spec-review-summary.md`,
       workingDirectory: ohDir,
-      maxTurns: 8,
-      timeout: 120_000,
+      // Preserve this case's existing turn/time allowances. The fixture now
+      // supplies the section it asks about instead of a carved skeleton.
+      maxTurns: 12,
+      timeout: JUDGE_MS,
       testName: 'office-hours-spec-review',
       runId,
     });
 
     logCost('/office-hours spec review', result);
-    recordE2E(evalCollector, '/office-hours-spec-review', 'Office Hours Spec Review E2E', result);
-    expect(result.exitReason).toBe('success');
-
-    const summaryPath = path.join(ohDir, 'spec-review-summary.md');
-    if (fs.existsSync(summaryPath)) {
-      const summary = fs.readFileSync(summaryPath, 'utf-8').toLowerCase();
-      expect(summary).toMatch(/5.*dimension|dimension.*5|completeness|consistency|clarity|scope|feasibility/);
-      expect(summary).toMatch(/agent|subagent/);
-      expect(summary).toMatch(/3.*iteration|iteration.*3|maximum.*3/);
+    let validationError: unknown;
+    try {
+      const summaryPath = path.join(ohDir, 'spec-review-summary.md');
+      validateOfficeHoursSpecSummary(result.exitReason,
+        fs.existsSync(summaryPath) ? fs.readFileSync(summaryPath, 'utf-8') : null);
+    } catch (error) {
+      validationError = error;
+      throw error;
+    } finally {
+      recordE2E(evalCollector, '/office-hours-spec-review', 'Office Hours Spec Review E2E', result,
+        validationError ? {
+          passed: false,
+          exit_reason: result.exitReason === 'success' ? 'validation_failed' : result.exitReason,
+          output: String(validationError).slice(0, 2000),
+        } : undefined);
     }
-  }, 180_000);
+  }, CAPTURE_MS);
 });
 
 // --- Plan CEO Review Benefits-From E2E ---
@@ -610,7 +632,7 @@ Summarize what happens when no design doc is found — specifically:
 Write your summary to ${benefitsDir}/benefits-summary.md`,
       workingDirectory: benefitsDir,
       maxTurns: 8,
-      timeout: 120_000,
+      timeout: JUDGE_MS,
       testName: 'plan-ceo-review-benefits',
       runId,
     });
@@ -625,7 +647,7 @@ Write your summary to ${benefitsDir}/benefits-summary.md`,
       expect(summary).toMatch(/office.hours/);
       expect(summary).toMatch(/design doc|no design/i);
     }
-  }, 180_000);
+  }, CAPTURE_MS);
 });
 
 // --- Plan Review Report E2E ---
@@ -633,18 +655,26 @@ Write your summary to ${benefitsDir}/benefits-summary.md`,
 // to the bottom of the plan file (the living review status footer).
 
 describeIfSelected('Plan Review Report E2E', ['plan-review-report'], () => {
-  let planDir: string;
+  test('/plan-eng-review writes GSTACK REVIEW REPORT to plan file', async () => {
+    let planDir: string | undefined;
+    try {
+      await runRecordedOfficeHoursAttempt({
+        collector: evalCollector, name: '/plan-review-report', suite: 'Plan Review Report E2E',
+        model: 'claude-opus-4-7', budgetMs: CAPTURE_LONG_MS,
+        run: async signal => {
+          planDir = fs.mkdtempSync(path.join(os.tmpdir(), 'skill-e2e-review-report-'));
+          const run = (cmd: string, args: string[]) => {
+            const result = spawnSync(cmd, args, { cwd: planDir, stdio: 'pipe', timeout: 5000 });
+            if (result.error || result.status !== 0) {
+              throw new Error(`plan-review-report fixture ${cmd}: ${result.error?.message || result.stderr?.toString() || `exit ${result.status}`}`);
+            }
+          };
 
-  beforeAll(() => {
-    planDir = fs.mkdtempSync(path.join(os.tmpdir(), 'skill-e2e-review-report-'));
-    const run = (cmd: string, args: string[]) =>
-      spawnSync(cmd, args, { cwd: planDir, stdio: 'pipe', timeout: 5000 });
+          run('git', ['init', '-b', 'main']);
+          run('git', ['config', 'user.email', 'test@test.com']);
+          run('git', ['config', 'user.name', 'Test']);
 
-    run('git', ['init', '-b', 'main']);
-    run('git', ['config', 'user.email', 'test@test.com']);
-    run('git', ['config', 'user.name', 'Test']);
-
-    fs.writeFileSync(path.join(planDir, 'plan.md'), `# Plan: Add Notifications System
+          fs.writeFileSync(path.join(planDir, 'plan.md'), `# Plan: Add Notifications System
 
 ## Context
 We're building a real-time notification system for our SaaS app.
@@ -666,100 +696,87 @@ We're building a real-time notification system for our SaaS app.
 - Max notifications stored per user?
 `);
 
-    run('git', ['add', '.']);
-    run('git', ['commit', '-m', 'add plan']);
+          run('git', ['add', '.']);
+          run('git', ['commit', '-m', 'add plan']);
 
-    // Copy plan-eng-review skill
-    fs.mkdirSync(path.join(planDir, 'plan-eng-review'), { recursive: true });
-    fs.copyFileSync(
-      path.join(ROOT, 'plan-eng-review', 'SKILL.md'),
-      path.join(planDir, 'plan-eng-review', 'SKILL.md'),
-    );
-    // Carved skills (v2 plan T9): copy sections/ so the review workflow + report template are present.
-    { const _sec = path.join(ROOT, 'plan-eng-review', 'sections'); if (fs.existsSync(_sec)) fs.cpSync(_sec, path.join(planDir, 'plan-eng-review', 'sections'), { recursive: true }); }
-  });
+          // Copy plan-eng-review skill
+          fs.mkdirSync(path.join(planDir, 'plan-eng-review'), { recursive: true });
+          fs.copyFileSync(
+            path.join(ROOT, 'plan-eng-review', 'SKILL.md'),
+            path.join(planDir, 'plan-eng-review', 'SKILL.md'),
+          );
+          // The canonical report section is required, not an optional host cache.
+          fs.cpSync(path.join(ROOT, 'plan-eng-review', 'sections'),
+            path.join(planDir, 'plan-eng-review', 'sections'), { recursive: true });
 
-  afterAll(() => {
-    try { fs.rmSync(planDir, { recursive: true, force: true }); } catch {}
-  });
-
-  test('/plan-eng-review writes GSTACK REVIEW REPORT to plan file', async () => {
-    const result = await runSkillTest({
-      prompt: `Read plan-eng-review/SKILL.md for the review workflow.
+          return runSkillTest({
+            prompt: `Read plan-eng-review/SKILL.md and plan-eng-review/sections/review-sections.md for the review workflow and canonical report format.
 
 Read plan.md — that's the plan to review. This is a standalone plan document, not a codebase — skip any codebase exploration steps.
 
 Proceed directly to the full review. Skip any AskUserQuestion calls — this is non-interactive.
 Skip the preamble bash block, lake intro, telemetry, and contributor mode sections.
 
-CRITICAL REQUIREMENT: plan.md IS the plan file for this review session. After completing your review, you MUST write a "## GSTACK REVIEW REPORT" section to the END of plan.md, exactly as described in the "Plan File Review Report" section of SKILL.md. If gstack-review-read is not available or returns NO_REVIEWS, write the placeholder table with all five review rows (CEO, Codex, Eng, Design, DX). The report MUST end with the mandatory unresolved-decisions status as its final line — the exact unbolded line NO UNRESOLVED DECISIONS when nothing is open, or a "**UNRESOLVED DECISIONS:**" block of bullets when items remain. Nothing may follow it. Use the Edit tool to append to plan.md — do NOT overwrite the existing plan content.
+CRITICAL REQUIREMENT: plan.md IS the plan file for this review session. After completing your review, you MUST write a "## GSTACK REVIEW REPORT" section to the END of plan.md, exactly as described in the "Plan File Review Report" section of plan-eng-review/sections/review-sections.md. Use that canonical table, with all five review rows and honest not-run entries when review history is unavailable. The report MUST end with the mandatory unresolved-decisions status as its final line — the exact unbolded line NO UNRESOLVED DECISIONS when nothing is open, or a "**UNRESOLVED DECISIONS:**" block of bullets when items remain. Nothing may follow it. Use the Edit tool to append to plan.md — do NOT overwrite the existing plan content.
 
 This review report at the bottom of the plan is the MOST IMPORTANT deliverable of this test.`,
-      workingDirectory: planDir,
-      maxTurns: 20,
-      timeout: 360_000,
-      testName: 'plan-review-report',
-      runId,
-      model: 'claude-opus-4-7',
-    });
+            workingDirectory: planDir,
+            maxTurns: 20,
+            timeout: CAPTURE_LONG_MS,
+            testName: 'plan-review-report',
+            runId, signal,
+            model: 'claude-opus-4-7',
+          });
+        },
+        validate: result => {
+          logCost('/plan-eng-review report', result);
+          expect(['success', 'error_max_turns']).toContain(result.exitReason);
 
-    logCost('/plan-eng-review report', result);
-    recordE2E(evalCollector, '/plan-review-report', 'Plan Review Report E2E', result, {
-      passed: ['success', 'error_max_turns'].includes(result.exitReason),
-    });
+          // Verify the review report was written to the plan file
+          const planContent = fs.readFileSync(path.join(planDir!, 'plan.md'), 'utf-8');
 
-    // Transient API failure escape hatch: when the SDK returns error_api with
-    // zero turns / zero tokens, the API call died before the model ever ran —
-    // no skill code executed, no file was written. Bun retries the test up to
-    // 3x; if every attempt hits the same API hiccup, surface a warning and
-    // treat as inconclusive rather than gating the build on Anthropic
-    // availability. Logic regressions still surface as success/error_max_turns
-    // with a missing artifact, which the downstream assertions catch.
-    if (result.exitReason === 'error_api' && result.costEstimate?.turnsUsed === 0) {
-      console.warn('[transient] /plan-review-report: error_api with 0 turns — treating as inconclusive (likely Anthropic API hiccup, see CLAUDE.md eval-blame protocol)');
-      return;
+          // Original plan content should still be present
+          expect(planContent).toContain('# Plan: Add Notifications System');
+          expect(planContent).toContain('WebSocket');
+
+          // Review report section must exist
+          expect(planContent).toContain('## GSTACK REVIEW REPORT');
+
+          // Report should be at the bottom of the file
+          const reportIndex = planContent.lastIndexOf('## GSTACK REVIEW REPORT');
+          const afterReport = planContent.slice(reportIndex);
+
+          // Should contain the review table with standard rows
+          expect(afterReport).toMatch(/\|\s*Review\s*\|/);
+          expect(afterReport).toContain('CEO Review');
+          expect(afterReport).toContain('Eng Review');
+          expect(afterReport).toContain('Design Review');
+
+          // Mandatory unresolved-decisions status (plan-flag-unresolved-issues): the report's
+          // final non-whitespace line must be the unresolved status — the exact sentinel or a
+          // bullet of an UNRESOLVED DECISIONS block, with nothing (CODEX/CROSS-MODEL/VERDICT/
+          // prose) after it.
+          expect(afterReport).toContain('UNRESOLVED DECISIONS');
+          // Compute from afterReport (the report section to EOF), not the whole file, so a
+          // mid-file report surfaces the real trailing content in the failure message.
+          const nonEmpty = afterReport.split('\n').map(l => l.trim()).filter(l => l !== '');
+          const lastLine = nonEmpty[nonEmpty.length - 1];
+          const isSentinel = lastLine === 'NO UNRESOLVED DECISIONS';
+          const isUnresolvedBullet =
+            /^[-*]\s+/.test(lastLine) && !/VERDICT/i.test(lastLine) && afterReport.includes('UNRESOLVED DECISIONS:');
+          expect(
+            isSentinel || isUnresolvedBullet,
+            `report must end with the unresolved-decisions status; last line was: ${lastLine}`,
+          ).toBe(true);
+
+          console.log('Plan review report found at bottom of plan.md (ends with unresolved status)');
+        },
+      });
+    } finally {
+      // Each configured retry owns a pristine plan and finishes cleanup first.
+      if (planDir) try { fs.rmSync(planDir, { recursive: true, force: true }); } catch {}
     }
-    expect(['success', 'error_max_turns']).toContain(result.exitReason);
-
-    // Verify the review report was written to the plan file
-    const planContent = fs.readFileSync(path.join(planDir, 'plan.md'), 'utf-8');
-
-    // Original plan content should still be present
-    expect(planContent).toContain('# Plan: Add Notifications System');
-    expect(planContent).toContain('WebSocket');
-
-    // Review report section must exist
-    expect(planContent).toContain('## GSTACK REVIEW REPORT');
-
-    // Report should be at the bottom of the file
-    const reportIndex = planContent.lastIndexOf('## GSTACK REVIEW REPORT');
-    const afterReport = planContent.slice(reportIndex);
-
-    // Should contain the review table with standard rows
-    expect(afterReport).toMatch(/\|\s*Review\s*\|/);
-    expect(afterReport).toContain('CEO Review');
-    expect(afterReport).toContain('Eng Review');
-    expect(afterReport).toContain('Design Review');
-
-    // Mandatory unresolved-decisions status (plan-flag-unresolved-issues): the report's
-    // final non-whitespace line must be the unresolved status — the exact sentinel or a
-    // bullet of an UNRESOLVED DECISIONS block, with nothing (CODEX/CROSS-MODEL/VERDICT/
-    // prose) after it.
-    expect(afterReport).toContain('UNRESOLVED DECISIONS');
-    // Compute from afterReport (the report section to EOF), not the whole file, so a
-    // mid-file report surfaces the real trailing content in the failure message.
-    const nonEmpty = afterReport.split('\n').map(l => l.trim()).filter(l => l !== '');
-    const lastLine = nonEmpty[nonEmpty.length - 1];
-    const isSentinel = lastLine === 'NO UNRESOLVED DECISIONS';
-    const isUnresolvedBullet =
-      /^[-*]\s+/.test(lastLine) && !/VERDICT/i.test(lastLine) && afterReport.includes('UNRESOLVED DECISIONS:');
-    expect(
-      isSentinel || isUnresolvedBullet,
-      `report must end with the unresolved-decisions status; last line was: ${lastLine}`,
-    ).toBe(true);
-
-    console.log('Plan review report found at bottom of plan.md (ends with unresolved status)');
-  }, 420_000);
+  }, CAPTURE_LONG_MS + OFFICE_HOURS_BUN_GRACE_MS);
 });
 
 // --- Codex Offering E2E ---
@@ -804,19 +821,13 @@ describeIfSelected('Codex Offering E2E', [
 
   async function checkCodexOffering(skill: string, testName: string, featureName: string) {
     const result = await runSkillTest({
-      prompt: `Read ${skill}/SKILL.md. Search for ALL sections related to "codex", "outside voice", or "second opinion".
-
-Summarize the Codex/${featureName} integration — answer these specific questions:
-1. How is Codex availability checked? (what exact bash command?)
-2. How is the user prompted? (via AskUserQuestion? what are the options?)
-3. What happens when Codex is NOT available? (fallback to subagent? skip entirely?)
-4. Is this step blocking (gates the workflow) or optional (can be skipped)?
-5. What prompt/context is sent to Codex?
-
-Write your summary to ${testDir}/${testName}-summary.md`,
+      prompt: buildCodexOfferingPrompt({
+        root: testDir, skill, featureName,
+        summaryPath: path.join(testDir, `${testName}-summary.md`),
+      }),
       workingDirectory: testDir,
       maxTurns: 8,
-      timeout: 120_000,
+      timeout: JUDGE_MS,
       testName,
       runId,
     });
@@ -841,19 +852,19 @@ Write your summary to ${testDir}/${testName}-summary.md`,
 
   testConcurrentIfSelected('codex-offered-office-hours', async () => {
     await checkCodexOffering('office-hours', 'codex-offered-office-hours', 'second opinion');
-  }, 180_000);
+  }, CAPTURE_MS);
 
   testConcurrentIfSelected('codex-offered-ceo-review', async () => {
     await checkCodexOffering('plan-ceo-review', 'codex-offered-ceo-review', 'outside voice');
-  }, 180_000);
+  }, CAPTURE_MS);
 
   testConcurrentIfSelected('codex-offered-design-review', async () => {
     await checkCodexOffering('plan-design-review', 'codex-offered-design-review', 'design outside voices');
-  }, 180_000);
+  }, CAPTURE_MS);
 
   testConcurrentIfSelected('codex-offered-eng-review', async () => {
     await checkCodexOffering('plan-eng-review', 'codex-offered-eng-review', 'outside voice');
-  }, 180_000);
+  }, CAPTURE_MS);
 });
 
 // Module-level afterAll — finalize eval collector after all tests complete

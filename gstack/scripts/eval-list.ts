@@ -1,14 +1,13 @@
 #!/usr/bin/env bun
 /**
- * List eval runs from ~/.gstack-dev/evals/
+ * List eval runs from the project eval dir (~/.gstack/projects/<slug>/evals;
+ * legacy fallback ~/.gstack-dev/evals)
  *
  * Usage: bun run eval:list [--branch <name>] [--tier e2e|llm-judge] [--limit N]
  */
 
 import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
-import { getProjectEvalDir } from '../test/helpers/eval-store';
+import { evalEntryOutcome, getProjectEvalDir, listEvalJsonFiles } from '../test/helpers/eval-store';
 
 const EVAL_DIR = getProjectEvalDir();
 
@@ -37,14 +36,8 @@ for (let i = 0; i < args.length; i++) {
   else if (args[i] === '--limit') { limit = parseLimit(args[++i]); }
 }
 
-// Read eval files
-let files: string[];
-try {
-  files = fs.readdirSync(EVAL_DIR).filter(f => f.endsWith('.json'));
-} catch {
-  console.log('No eval runs yet. Run: EVALS=1 bun run test:evals');
-  process.exit(0);
-}
+// Read eval files (flat dir plus one level of shards/<slug>/)
+const files = listEvalJsonFiles(EVAL_DIR);
 
 if (files.length === 0) {
   console.log('No eval runs yet. Run: EVALS=1 bun run test:evals');
@@ -59,6 +52,7 @@ interface RunSummary {
   tier: string;
   version: string;
   passed: number;
+  manual: Array<{ name: string; approvedBy: string; approvalUrl: string }>;
   total: number;
   cost: number;
   duration: number;
@@ -68,17 +62,23 @@ interface RunSummary {
 const runs: RunSummary[] = [];
 for (const file of files) {
   try {
-    const data = JSON.parse(fs.readFileSync(path.join(EVAL_DIR, file), 'utf-8'));
+    const data = JSON.parse(fs.readFileSync(file, 'utf-8'));
     if (filterBranch && data.branch !== filterBranch) continue;
     if (filterTier && data.tier !== filterTier) continue;
     const totalTurns = (data.tests || []).reduce((s: number, t: any) => s + (t.turns_used || 0), 0);
+    const tests = Array.isArray(data.tests) ? data.tests : null;
+    const final = tests ? [...new Map<string, any>(tests.map((t: any) => [t.name, t] as const)).values()] : [];
+    const manual = final.filter((t: any) => evalEntryOutcome(t) === 'manual-review').map((t: any) => ({
+      name: t.name, approvedBy: t.manual_review.approval.approved_by, approvalUrl: t.manual_review.approval.approval_url,
+    }));
     runs.push({
       file,
       timestamp: data.timestamp || '',
       branch: data.branch || 'unknown',
       tier: data.tier || 'unknown',
       version: data.version || '?',
-      passed: data.passed || 0,
+      passed: tests ? tests.filter((t: any) => evalEntryOutcome(t) === 'passed').length : data.passed || 0,
+      manual,
       total: data.total_tests || 0,
       cost: data.total_cost_usd || 0,
       duration: data.total_duration_ms || 0,
@@ -117,7 +117,8 @@ for (const run of displayed) {
   const cost = `$${run.cost.toFixed(2)}`.padEnd(8);
   const turns = run.turns > 0 ? `${run.turns}t`.padEnd(7) : ''.padEnd(7);
   const dur = run.duration > 0 ? `${Math.round(run.duration / 1000)}s`.padEnd(10) : ''.padEnd(10);
-  console.log(`  ${date.padEnd(17)}${branch}${run.tier.padEnd(12)}${pass}${cost}${turns}${dur}v${run.version}`);
+  const manual = run.manual.map(entry => `MANUAL/unscored ${entry.name}: approved by ${entry.approvedBy} (${entry.approvalUrl})`).join('; ');
+  console.log(`  ${date.padEnd(17)}${branch}${run.tier.padEnd(12)}${pass}${cost}${turns}${dur}v${run.version}${manual ? `  ${manual}` : ''}`);
 }
 
 console.log('─'.repeat(105));

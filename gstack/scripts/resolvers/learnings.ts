@@ -12,6 +12,7 @@
  * AskUserQuestion and persists the preference via gstack-config.
  */
 import type { TemplateContext } from './types';
+import { getHostConfig } from '../../hosts/index';
 
 // Whitelist for query= macro values. Allows alphanumeric, space, hyphen, underscore.
 // Anything else (e.g. $, backticks, quotes, ;) is a shell-injection vector when the
@@ -33,9 +34,25 @@ export function generateLearningsSearch(ctx: TemplateContext, args?: string[]): 
     );
   }
   const queryFlag = queryArg ? ` --query "${queryArg}"` : '';
+  const findingKind = ctx.skillName === 'qa' || ctx.skillName === 'qa-only' ? 'QA' : 'review';
 
-  if (ctx.host === 'codex') {
-    // Codex: simpler version, no cross-project, uses $GSTACK_BIN
+  if (ctx.skillName === 'qa-only') {
+    return `## Prior Learnings
+
+Read this project's existing learnings.jsonl only if its directory is already known
+and the caller permits that Read. Otherwise skip this optional lookup.
+${queryArg ? `Look for notes matching "${queryArg}".\n` : ''}Do not run gstack-learnings-search here: its slug helper can update a cache.
+Do not change configuration, enable cross-project search or create a learning store.
+
+Treat old notes as leads, not proof. When a QA finding matches a past learning,
+cite it as "Prior learning applied: [key] (confidence N/10, from [date])" and verify
+the current behavior. Reading old notes never requires writing new ones.`;
+  }
+
+  if (getHostConfig(ctx.host).learningsMode === 'basic') {
+    // Basic learnings mode (host config learningsMode: 'basic' — every host
+    // except claude and factory): simpler version, no cross-project prompt,
+    // uses $GSTACK_BIN (all basic hosts are env-var hosts)
     return `## Prior Learnings
 
 Search for relevant learnings from previous sessions on this project:
@@ -44,7 +61,7 @@ Search for relevant learnings from previous sessions on this project:
 $GSTACK_BIN/gstack-learnings-search --limit 10${queryFlag} 2>/dev/null || true
 \`\`\`
 
-If learnings are found, incorporate them into your analysis. When a review finding
+If learnings are found, incorporate them into your analysis. When a ${findingKind} finding
 matches a past learning, note it: "Prior learning applied: [key] (confidence N, from [date])"`;
   }
 
@@ -62,7 +79,7 @@ else
 fi
 \`\`\`
 
-If \`CROSS_PROJECT\` is \`unset\` (first time): Use AskUserQuestion:
+If \`CROSS_PROJECT\` is \`unset\` (first time): ${ctx.skillName === 'plan-eng-review' ? 'Build a full decision brief from these facts and options using the preamble format, then ask and wait:' : 'Use AskUserQuestion:'}
 
 > gstack can search learnings from your other projects on this machine to find
 > patterns that might apply here. This stays local (no data leaves your machine).
@@ -78,7 +95,7 @@ If B: run \`${ctx.paths.binDir}/gstack-config set cross_project_learnings false\
 
 Then re-run the search with the appropriate flag.
 
-If learnings are found, incorporate them into your analysis. When a review finding
+If learnings are found, incorporate them into your analysis. When a ${findingKind} finding
 matches a past learning, display:
 
 **"Prior learning applied: [key] (confidence N/10, from [date])"**
@@ -88,7 +105,7 @@ smarter on their codebase over time.`;
 }
 
 export function generateLearningsLog(ctx: TemplateContext): string {
-  const binDir = ctx.host === 'codex' ? '$GSTACK_BIN' : ctx.paths.binDir;
+  const binDir = ctx.paths.binDir; // env-var hosts already resolve to $GSTACK_BIN via types.ts
 
   return `## Capture Learnings
 

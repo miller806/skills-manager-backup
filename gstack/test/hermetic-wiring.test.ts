@@ -16,14 +16,15 @@
 import { describe, test, expect } from 'bun:test';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
+import { getHermeticDirs, hermeticSkillsConfigDir } from './helpers/hermetic-env';
 
-const ROOT = path.resolve(new URL(import.meta.url).pathname, '..', '..');
+const ROOT = path.resolve(import.meta.path, '..', '..');
 
 const RUNNERS = [
   'test/helpers/session-runner.ts',
   'test/helpers/claude-pty-runner.ts',
   'test/helpers/codex-session-runner.ts',
-  'test/helpers/gemini-session-runner.ts',
   'test/helpers/agent-sdk-runner.ts',
 ];
 
@@ -55,6 +56,33 @@ describe('hermetic wiring tripwire', () => {
           offenders.map((o) => o.n).join(', ') +
           ' — route through hermeticChildEnv() instead',
       ).toEqual([]);
+    }
+  });
+
+  test('feature prompt acknowledgements are seeded in GSTACK_HOME everywhere', () => {
+    const markers = [
+      '.feature-prompted-model-overlay',
+    ];
+    // CI seeding lives in the composite action (v1.77 moved it out of the
+    // inline workflow steps) — the workflows call the action, so one seeding
+    // site covers every lane.
+    const sources: Array<[string, number]> = [
+      ['test/helpers/hermetic-env.ts', 1],
+      ['test/helpers/e2e-helpers.ts', 1],
+      ['.github/actions/register-gstack-skills/action.yml', 1],
+    ];
+
+    for (const [rel, expectedCount] of sources) {
+      const src = read(rel);
+      for (const marker of markers) {
+        expect(src.split(marker).length - 1, `${rel}: ${marker}`).toBe(expectedCount);
+      }
+    }
+
+    for (const rel of ['.github/actions/register-gstack-skills/action.yml']) {
+      const src = read(rel);
+      expect(src).not.toContain('$SKILLS_DIR/gstack/.feature-prompted-');
+      for (const marker of markers) expect(src).toContain(`$HOME/.gstack/${marker}`);
     }
   });
 
@@ -109,5 +137,44 @@ describe('hermetic wiring tripwire', () => {
       'These callsites pass the operator env into an eval child, defeating the hermetic scrub: ' +
         offenders.join(', '),
     ).toEqual([]);
+  });
+
+  test('skill seeding stays under runRoot and reads the live repo tree, never operator ~/.claude', () => {
+    // hermeticSkillsConfigDir() is a BLESSED non-hermetic edge: it registers
+    // the LIVE repo tree's skills (the skills are the subject under test).
+    // What it must never do is hand children the operator's ~/.claude — the
+    // seeded CLAUDE_CONFIG_DIR lives under the hermetic runRoot, while its
+    // registered documents link directly to the live checkout under test.
+    const configDir = hermeticSkillsConfigDir();
+    const { runRoot } = getHermeticDirs();
+    const operatorClaude = path.join(os.homedir(), '.claude') + path.sep;
+    expect(configDir.startsWith(runRoot + path.sep)).toBe(true);
+    expect(configDir.startsWith(operatorClaude)).toBe(false);
+    const skillsDir = path.join(configDir, 'skills');
+    const repoRootReal = fs.realpathSync(ROOT) + path.sep;
+    for (const entry of fs.readdirSync(skillsDir)) {
+      if (entry === 'gstack') {
+        const verifyRuntime = (directory: string) => {
+          expect(fs.lstatSync(directory).isDirectory()).toBe(true);
+          for (const name of fs.readdirSync(directory)) {
+            const file = path.join(directory, name);
+            if (fs.statSync(file).isDirectory()) verifyRuntime(file);
+            else {
+              expect(fs.lstatSync(file).isSymbolicLink()).toBe(true);
+              expect(fs.realpathSync(file).startsWith(repoRootReal), file).toBe(true);
+            }
+          }
+        };
+        verifyRuntime(path.join(skillsDir, entry));
+        continue;
+      }
+      const link = path.join(skillsDir, entry, 'SKILL.md');
+      expect(fs.lstatSync(path.dirname(link)).isDirectory()).toBe(true);
+      expect(fs.lstatSync(link).isSymbolicLink()).toBe(true);
+      const target = fs.readlinkSync(link);
+      const resolved = fs.realpathSync(link);
+      expect(resolved.startsWith(operatorClaude), `${entry}: symlink escapes to ${target}`).toBe(false);
+      expect(resolved.startsWith(repoRootReal), `${entry}: symlink outside checkout: ${target}`).toBe(true);
+    }
   });
 });

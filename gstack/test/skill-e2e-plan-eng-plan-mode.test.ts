@@ -1,19 +1,21 @@
 /**
- * plan-eng-review plan-mode smoke (gate, paid, real-PTY).
+ * plan-eng-review plan-mode smoke (periodic, paid, real-PTY).
  *
  * See test/skill-e2e-plan-ceo-plan-mode.test.ts for the shared assertion
  * contract. This file exercises the same contract against /plan-eng-review.
  */
 
-import { describe, test, expect } from 'bun:test';
+import { test, expect } from 'bun:test';
+import { CAPTURE_MS, CAPTURE_LONG_MS } from './helpers/eval-budgets';
+import { describeE2ETier } from './helpers/e2e-gate';
+import { assertPlanModeWithEvidence } from './helpers/plan-mode-evidence';
 import {
   runPlanSkillObservation,
   planFileHasDecisionsSection,
   assertReportAtBottomIfPlanWritten,
 } from './helpers/claude-pty-runner';
 
-const shouldRun = !!process.env.EVALS && process.env.EVALS_TIER === 'gate';
-const describeE2E = shouldRun ? describe : describe.skip;
+const describeE2E = describeE2ETier('periodic');
 
 // SEED_PLAN_FORCING_FINDINGS: 8+ files + custom-vs-builtin smell forces the
 // Step 0 complexity check to trigger. Passed via runPlanSkillObservation's
@@ -45,25 +47,27 @@ Ignore Bun's native --shard flag because we want full control.
 None planned — will add later.
 `;
 
-describeE2E('plan-eng-review plan-mode smoke (gate)', () => {
+describeE2E('plan-eng-review plan-mode smoke (periodic)', () => {
   test('reaches a terminal outcome (asked or plan_ready) without silent writes', async () => {
     const obs = await runPlanSkillObservation({
       skillName: 'plan-eng-review',
       inPlanMode: true,
-      timeoutMs: 300_000,
+      timeoutMs: CAPTURE_MS,
     });
 
-    if (obs.outcome === 'silent_write' || obs.outcome === 'exited' || obs.outcome === 'timeout') {
-      throw new Error(
-        `plan-eng-review plan-mode smoke FAILED: outcome=${obs.outcome}\n` +
-          `summary: ${obs.summary}\n` +
-          `elapsed: ${obs.elapsedMs}ms\n` +
-          `--- evidence (last 2KB visible) ---\n${obs.evidence}`,
-      );
-    }
-    expect(['asked', 'plan_ready']).toContain(obs.outcome);
-    assertReportAtBottomIfPlanWritten(obs);
-  }, 360_000);
+    assertPlanModeWithEvidence('plan-eng-review', 'reaches a terminal outcome (asked or plan_ready) without silent writes', obs, () => {
+      if (obs.outcome === 'silent_write' || obs.outcome === 'exited' || obs.outcome === 'timeout') {
+        throw new Error(
+          `plan-eng-review plan-mode smoke FAILED: outcome=${obs.outcome}\n` +
+            `summary: ${obs.summary}\n` +
+            `elapsed: ${obs.elapsedMs}ms\n` +
+            `--- evidence (last 2KB visible) ---\n${obs.evidence}`,
+        );
+      }
+      expect(['asked', 'plan_ready']).toContain(obs.outcome);
+      assertReportAtBottomIfPlanWritten(obs);
+    });
+  }, CAPTURE_LONG_MS);
 
   // D3-B / D4-B: when a plan with guaranteed-finding-triggering complexity
   // is seeded, the skill MUST fire AskUserQuestion (or fall back to a
@@ -79,34 +83,46 @@ describeE2E('plan-eng-review plan-mode smoke (gate)', () => {
       // must use mcp__*__AskUserQuestion (outcome='asked') or fall back to
       // writing Decisions ('plan_ready').
       extraArgs: ['--disallowedTools', 'AskUserQuestion'],
-      timeoutMs: 300_000,
+      timeoutMs: CAPTURE_MS,
     });
 
-    if (
-      obs.outcome === 'wrote_findings_before_asking' ||
-      obs.outcome === 'auto_decided' ||
-      obs.outcome === 'silent_write' ||
-      obs.outcome === 'exited' ||
-      obs.outcome === 'timeout'
-    ) {
-      throw new Error(
-        `STOP-gate regression: outcome=${obs.outcome}\nsummary: ${obs.summary}\n` +
-          `elapsed: ${obs.elapsedMs}ms\n` +
-          `--- evidence (last 2KB) ---\n${obs.evidence}`,
-      );
-    }
-
-    if (obs.outcome === 'plan_ready') {
-      if (!obs.planFile || !planFileHasDecisionsSection(obs.planFile)) {
+    assertPlanModeWithEvidence('plan-eng-review', 'STOP gate fires when seeded plan forces Step 0 findings', obs, () => {
+      if (
+        obs.outcome === 'wrote_findings_before_asking' ||
+        obs.outcome === 'auto_decided' ||
+        obs.outcome === 'silent_write' ||
+        obs.outcome === 'exited' ||
+        obs.outcome === 'timeout'
+      ) {
         throw new Error(
-          `STOP-gate regression: plan_ready without ## Decisions section in ` +
-            `${obs.planFile ?? '<no plan file>'} — gate skipped after ToolSearch.\n` +
+          `STOP-gate regression: outcome=${obs.outcome}\nsummary: ${obs.summary}\n` +
+            `elapsed: ${obs.elapsedMs}ms\n` +
             `--- evidence (last 2KB) ---\n${obs.evidence}`,
         );
       }
-    }
 
-    expect(['asked', 'plan_ready']).toContain(obs.outcome);
-    assertReportAtBottomIfPlanWritten(obs);
-  }, 360_000);
+      if (obs.outcome === 'plan_ready') {
+        if (!obs.planFile || !planFileHasDecisionsSection(obs.planFile)) {
+          throw new Error(
+            `STOP-gate regression: plan_ready without ## Decisions section in ` +
+              `${obs.planFile ?? '<no plan file>'} — gate skipped after ToolSearch.\n` +
+              `--- evidence (last 2KB) ---\n${obs.evidence}`,
+          );
+        }
+      }
+
+      expect(['asked', 'plan_ready']).toContain(obs.outcome);
+      assertReportAtBottomIfPlanWritten(obs);
+
+      // Plan-mode scope-gate bypass: with a seeded plan in plan mode, the gate
+      // must NOT render its "What should I review?" menu — it auto-selects B
+      // and announces it. Exception ordering in the template (plan-mode branch
+      // first) makes this deterministic even though the seed arrives as a
+      // pasted user message. Unseeded test 1 keeps its lenient contract: with
+      // no plan drafted, the "ask as normal" fallback legitimately renders the
+      // question.
+      expect(obs.scopeGateQuestionObserved ?? false).toBe(false);
+      expect(obs.scopeGateAutoSelectObserved ?? false).toBe(true);
+    });
+  }, CAPTURE_LONG_MS);
 });
