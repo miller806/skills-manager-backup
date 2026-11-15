@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "scenario_id": "891d5f98-315d-4e94-992c-efc02d1c8f4f",
-  "name": "界面设计",
+  "name": "S·界面设计",
   "description": "设计系统、品牌规范、shadcn/Tailwind、antd、前端界面实现",
   "icon": "target",
   "sort_order": 999

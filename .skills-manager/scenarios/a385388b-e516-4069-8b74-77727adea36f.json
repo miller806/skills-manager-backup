@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "scenario_id": "a385388b-e516-4069-8b74-77727adea36f",
-  "name": "可视化解释",
+  "name": "S·可视化解释",
   "description": "把回答与说明转成单页可视化，代替长篇文字",
   "icon": null,
   "sort_order": 999

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "scenario_id": "4f8bde34-c9b3-47aa-bf82-bbd2c796950e",
-  "name": "内容发布",
+  "name": "S·内容发布",
   "description": "抓取网页/视频/推文 → 翻译排版 → 发公众号 · X · 小红书、笔记",
   "icon": null,
   "sort_order": 999
