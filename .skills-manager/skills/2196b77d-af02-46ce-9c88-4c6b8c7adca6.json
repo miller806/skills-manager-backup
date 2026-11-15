@@ -4,7 +4,9 @@
   "path": "code-audit-agent",
   "path_key": "code-audit-agent",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "jeekoo"
+  ],
   "source": {
     "type": "git",
     "ref": "https://github.com/jeekoo-org/code-audit-agent",
