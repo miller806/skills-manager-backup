@@ -2,7 +2,7 @@
   "schema_version": 1,
   "scenario_id": "b053d68b-11a2-4af1-90c2-ec3f035e55f6",
   "name": "开发流程",
-  "description": "编排、计划、TDD、调试、代码评审、分支与发版",
+  "description": "编排、计划、TDD、调试、代码评审、网页测试、分支与发版",
   "icon": "briefcase",
   "sort_order": 0
 }
