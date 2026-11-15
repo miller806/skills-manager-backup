@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "skill_id": "9750c223-0fad-44c9-b2e4-a391588e1678",
+  "path": "lark-sheets",
+  "path_key": "lark-sheets",
+  "enabled": true,
+  "tags": [
+    "larksuite"
+  ],
+  "source": {
+    "type": "skillssh",
+    "ref": "larksuite/cli/lark-sheets",
+    "subpath": "skills\\lark-sheets",
+    "branch": null
+  }
+}
