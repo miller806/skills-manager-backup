@@ -2,7 +2,7 @@
   "schema_version": 1,
   "scenario_id": "a385388b-e516-4069-8b74-77727adea36f",
   "name": "HTML 讲解页",
-  "description": "把回答变成一页可视化 HTML 解释页（Markdown 草稿 → 构建单页）",
+  "description": "把回答转成单页可视化 HTML 的草稿与构建流程",
   "icon": null,
   "sort_order": 999
 }

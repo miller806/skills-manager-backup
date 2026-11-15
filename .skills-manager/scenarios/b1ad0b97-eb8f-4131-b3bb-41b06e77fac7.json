@@ -2,7 +2,7 @@
   "schema_version": 1,
   "scenario_id": "b1ad0b97-eb8f-4131-b3bb-41b06e77fac7",
   "name": "文档演示",
-  "description": "交付文档与演示稿：PPTX、PDF、Excel、HTML 演示、幻灯片图",
+  "description": "PPTX、PDF、Excel、HTML 演示、幻灯片图",
   "icon": null,
   "sort_order": 999
 }
