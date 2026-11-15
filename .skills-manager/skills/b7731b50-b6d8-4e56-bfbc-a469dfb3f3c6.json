@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-image-gen",
-    "subpath": "skills\\baoyu-image-gen",
+    "subpath": "skills/baoyu-image-gen",
     "branch": null
   }
 }

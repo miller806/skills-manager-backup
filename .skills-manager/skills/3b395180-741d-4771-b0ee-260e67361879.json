@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "anthropics/skills/pptx",
-    "subpath": "skills\\pptx",
+    "subpath": "skills/pptx",
     "branch": null
   }
 }

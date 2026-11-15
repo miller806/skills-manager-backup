@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-compress-image",
-    "subpath": "skills\\baoyu-compress-image",
+    "subpath": "skills/baoyu-compress-image",
     "branch": null
   }
 }

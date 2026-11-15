@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-diagram",
-    "subpath": "skills\\baoyu-diagram",
+    "subpath": "skills/baoyu-diagram",
     "branch": null
   }
 }

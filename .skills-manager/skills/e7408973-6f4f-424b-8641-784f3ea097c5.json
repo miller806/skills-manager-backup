@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "larksuite/cli/lark-calendar",
-    "subpath": "skills\\lark-calendar",
+    "subpath": "skills/lark-calendar",
     "branch": null
   }
 }

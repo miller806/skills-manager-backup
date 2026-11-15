@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "obra/superpowers/using-git-worktrees",
-    "subpath": "skills\\using-git-worktrees",
+    "subpath": "skills/using-git-worktrees",
     "branch": null
   }
 }

@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "obra/superpowers/brainstorming",
-    "subpath": "skills\\brainstorming",
+    "subpath": "skills/brainstorming",
     "branch": null
   }
 }

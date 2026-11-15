@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-youtube-transcript",
-    "subpath": "skills\\baoyu-youtube-transcript",
+    "subpath": "skills/baoyu-youtube-transcript",
     "branch": null
   }
 }

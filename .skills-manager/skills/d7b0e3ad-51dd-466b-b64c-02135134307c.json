@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-markdown-to-html",
-    "subpath": "skills\\baoyu-markdown-to-html",
+    "subpath": "skills/baoyu-markdown-to-html",
     "branch": null
   }
 }

@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "ant-design/antd-skill/ant-design",
-    "subpath": "skills\\ant-design",
+    "subpath": "skills/ant-design",
     "branch": null
   }
 }

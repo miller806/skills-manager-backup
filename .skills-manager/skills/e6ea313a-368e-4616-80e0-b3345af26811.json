@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-translate",
-    "subpath": "skills\\baoyu-translate",
+    "subpath": "skills/baoyu-translate",
     "branch": null
   }
 }

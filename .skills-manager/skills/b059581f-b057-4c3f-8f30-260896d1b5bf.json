@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "obra/superpowers/test-driven-development",
-    "subpath": "skills\\test-driven-development",
+    "subpath": "skills/test-driven-development",
     "branch": null
   }
 }

@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "anthropics/skills/webapp-testing",
-    "subpath": "skills\\webapp-testing",
+    "subpath": "skills/webapp-testing",
     "branch": null
   }
 }

@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "obra/superpowers/finishing-a-development-branch",
-    "subpath": "skills\\finishing-a-development-branch",
+    "subpath": "skills/finishing-a-development-branch",
     "branch": null
   }
 }

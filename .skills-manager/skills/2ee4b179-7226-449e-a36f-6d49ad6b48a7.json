@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "obra/superpowers/systematic-debugging",
-    "subpath": "skills\\systematic-debugging",
+    "subpath": "skills/systematic-debugging",
     "branch": null
   }
 }

@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "obra/superpowers/executing-plans",
-    "subpath": "skills\\executing-plans",
+    "subpath": "skills/executing-plans",
     "branch": null
   }
 }

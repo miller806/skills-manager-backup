@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "obra/superpowers/requesting-code-review",
-    "subpath": "skills\\requesting-code-review",
+    "subpath": "skills/requesting-code-review",
     "branch": null
   }
 }

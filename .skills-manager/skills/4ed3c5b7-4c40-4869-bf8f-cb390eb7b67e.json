@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-article-illustrator",
-    "subpath": "skills\\baoyu-article-illustrator",
+    "subpath": "skills/baoyu-article-illustrator",
     "branch": null
   }
 }

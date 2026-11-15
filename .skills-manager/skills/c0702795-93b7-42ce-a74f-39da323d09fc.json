@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "heygen-com/hyperframes/hyperframes-cli",
-    "subpath": "skills\\hyperframes-cli",
+    "subpath": "skills/hyperframes-cli",
     "branch": null
   }
 }

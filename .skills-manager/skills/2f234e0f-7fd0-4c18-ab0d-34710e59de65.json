@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "obra/superpowers/using-superpowers",
-    "subpath": "skills\\using-superpowers",
+    "subpath": "skills/using-superpowers",
     "branch": null
   }
 }

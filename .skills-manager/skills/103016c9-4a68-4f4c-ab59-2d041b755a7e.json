@@ -11,7 +11,7 @@
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-danger-x-to-markdown",
-    "subpath": "skills\\baoyu-danger-x-to-markdown",
+    "subpath": "skills/baoyu-danger-x-to-markdown",
     "branch": null
   }
 }

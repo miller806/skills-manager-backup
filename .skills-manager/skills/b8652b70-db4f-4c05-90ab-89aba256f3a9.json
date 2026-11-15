@@ -11,7 +11,7 @@
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-danger-gemini-web",
-    "subpath": "skills\\baoyu-danger-gemini-web",
+    "subpath": "skills/baoyu-danger-gemini-web",
     "branch": null
   }
 }

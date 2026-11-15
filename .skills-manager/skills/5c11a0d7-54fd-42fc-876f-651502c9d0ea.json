@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "larksuite/cli/lark-task",
-    "subpath": "skills\\lark-task",
+    "subpath": "skills/lark-task",
     "branch": null
   }
 }

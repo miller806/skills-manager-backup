@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "obra/superpowers/dispatching-parallel-agents",
-    "subpath": "skills\\dispatching-parallel-agents",
+    "subpath": "skills/dispatching-parallel-agents",
     "branch": null
   }
 }

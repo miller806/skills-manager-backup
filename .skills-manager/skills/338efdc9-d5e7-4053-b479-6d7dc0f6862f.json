@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-wechat-summary",
-    "subpath": "skills\\baoyu-wechat-summary",
+    "subpath": "skills/baoyu-wechat-summary",
     "branch": null
   }
 }

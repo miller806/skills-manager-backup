@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "obra/superpowers/subagent-driven-development",
-    "subpath": "skills\\subagent-driven-development",
+    "subpath": "skills/subagent-driven-development",
     "branch": null
   }
 }
