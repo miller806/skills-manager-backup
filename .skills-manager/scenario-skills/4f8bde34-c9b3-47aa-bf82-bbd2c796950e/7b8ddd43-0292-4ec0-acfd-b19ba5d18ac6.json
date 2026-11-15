@@ -3,5 +3,10 @@
   "scenario_id": "4f8bde34-c9b3-47aa-bf82-bbd2c796950e",
   "skill_id": "7b8ddd43-0292-4ec0-acfd-b19ba5d18ac6",
   "sort_order": 9,
-  "tools": {}
+  "tools": {
+    "claude_code": true,
+    "codex": true,
+    "deepseek_harness": true,
+    "pi": true
+  }
 }
