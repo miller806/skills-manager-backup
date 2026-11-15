@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "1826d836-5861-44b5-aa32-f91754247d81",
+  "path": "FFmpeg Video Editor",
+  "path_key": "ffmpeg video editor",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

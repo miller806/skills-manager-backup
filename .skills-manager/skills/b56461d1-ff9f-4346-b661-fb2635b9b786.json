@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "b56461d1-ff9f-4346-b661-fb2635b9b786",
+  "path": "feishu-send-file",
+  "path_key": "feishu-send-file",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

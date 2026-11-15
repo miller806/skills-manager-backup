@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "7ab3782b-cb8f-4dac-b86a-3d0c3dc0a519",
+  "path": "1password",
+  "path_key": "1password",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

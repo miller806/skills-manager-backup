@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "3dbddb0c-2901-4cd3-85e5-f5bb45090dd3",
+  "path": "opencode-controller",
+  "path_key": "opencode-controller",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

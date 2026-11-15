@@ -1,18 +1,16 @@
 ---
 name: skill-vetter
-description: "Security-first skill vetting for AI agents. Use before installing any skill from community, GitHub, or other sources. Checks for red flags, permission scope, and suspicious patterns."
-description_zh: "安装前审查技能的安全性"
-description_en: "Security-first skill vetting before install"
 version: 1.0.0
+description: Security-first skill vetting for AI agents. Use before installing any skill from ClawdHub, GitHub, or other sources. Checks for red flags, permission scope, and suspicious patterns.
 ---
 
-# Skill Vetter
+# Skill Vetter 🔒
 
 Security-first vetting protocol for AI agent skills. **Never install a skill without vetting it first.**
 
 ## When to Use
 
-- Before installing any skill from community marketplaces
+- Before installing any skill from ClawdHub
 - Before running skills from GitHub repos
 - When evaluating skills shared by other agents
 - Anytime you're asked to install unknown code
@@ -35,7 +33,7 @@ Questions to answer:
 Read ALL files in the skill. Check for these **RED FLAGS**:
 
 ```
-REJECT IMMEDIATELY IF YOU SEE:
+🚨 REJECT IMMEDIATELY IF YOU SEE:
 ─────────────────────────────────────────
 • curl/wget to unknown URLs
 • Sends data to external servers
@@ -69,10 +67,10 @@ Evaluate:
 
 | Risk Level | Examples | Action |
 |------------|----------|--------|
-| LOW | Notes, weather, formatting | Basic review, install OK |
-| MEDIUM | File ops, browser, APIs | Full code review required |
-| HIGH | Credentials, trading, system | Human approval required |
-| EXTREME | Security configs, root access | Do NOT install |
+| 🟢 LOW | Notes, weather, formatting | Basic review, install OK |
+| 🟡 MEDIUM | File ops, browser, APIs | Full code review required |
+| 🔴 HIGH | Credentials, trading, system | Human approval required |
+| ⛔ EXTREME | Security configs, root access | Do NOT install |
 
 ## Output Format
 
@@ -82,7 +80,7 @@ After vetting, produce this report:
 SKILL VETTING REPORT
 ═══════════════════════════════════════
 Skill: [name]
-Source: [community / GitHub / other]
+Source: [ClawdHub / GitHub / other]
 Author: [username]
 Version: [version]
 ───────────────────────────────────────
@@ -98,9 +96,9 @@ PERMISSIONS NEEDED:
 • Network: [list or "None"]  
 • Commands: [list or "None"]
 ───────────────────────────────────────
-RISK LEVEL: [LOW / MEDIUM / HIGH / EXTREME]
+RISK LEVEL: [🟢 LOW / 🟡 MEDIUM / 🔴 HIGH / ⛔ EXTREME]
 
-VERDICT: [SAFE TO INSTALL / INSTALL WITH CAUTION / DO NOT INSTALL]
+VERDICT: [✅ SAFE TO INSTALL / ⚠️ INSTALL WITH CAUTION / ❌ DO NOT INSTALL]
 
 NOTES: [Any observations]
 ═══════════════════════════════════════
@@ -122,11 +120,11 @@ curl -s "https://raw.githubusercontent.com/OWNER/REPO/main/skills/SKILL_NAME/SKI
 
 ## Trust Hierarchy
 
-1. **Official marketplace skills** - Lower scrutiny (still review)
-2. **High-star repos (1000+)** - Moderate scrutiny
-3. **Known authors** - Moderate scrutiny
-4. **New/unknown sources** - Maximum scrutiny
-5. **Skills requesting credentials** - Human approval always
+1. **Official OpenClaw skills** → Lower scrutiny (still review)
+2. **High-star repos (1000+)** → Moderate scrutiny
+3. **Known authors** → Moderate scrutiny
+4. **New/unknown sources** → Maximum scrutiny
+5. **Skills requesting credentials** → Human approval always
 
 ## Remember
 
@@ -137,4 +135,4 @@ curl -s "https://raw.githubusercontent.com/OWNER/REPO/main/skills/SKILL_NAME/SKI
 
 ---
 
-*Paranoia is a feature.*
+*Paranoia is a feature.* 🔒🦀

@@ -4,7 +4,9 @@
  *   {{TASKS_SECTION_EMIT:<phase>}}     — per-skill task emission + JSONL write
  *   {{TASKS_SECTION_AGGREGATE}}        — autoplan aggregation across all phases
  *
- * Schema for the JSONL artifact lives in scripts/task-emission-schema.ts.
+ * JSONL artifact fields: phase, run_id, branch, commit, id, priority,
+ * component, files, effort_human, effort_cc, title, source_finding
+ * (consumed by /autoplan's aggregator).
  */
 
 import type { TemplateContext, ResolverFn } from './types';
@@ -16,13 +18,19 @@ export const generateTasksSectionEmit: ResolverFn = (_ctx: TemplateContext, args
   if (!phase || !VALID_PHASES.has(phase)) {
     throw new Error(`TASKS_SECTION_EMIT requires one of ${[...VALID_PHASES].join(', ')} — got ${phase}`);
   }
+  const ceo = _ctx.skillName === 'plan-ceo-review';
+  const conditionalWrites = ceo || _ctx.skillName === 'plan-eng-review';
+  const storagePolicy = ceo ? 'Step 0 storage policy' : 'Review record and write policy';
 
   return `## Implementation Tasks
 
-Before closing this review, synthesize the findings above into a flat list of
-build-actionable tasks. Each task derives from a specific finding — no padding.
-Emit the markdown section AND write a JSONL artifact that \`/autoplan\` can
-aggregate across phases.
+${ceo ? `Turn findings into tasks within the approved review depth. Implementation-ready
+tasks describe the build. Strategy-only tasks name the next research, design or
+verification action and its owner; they do not choose implementation contracts.
+List known files only. For unknown files, write "to be determined" and use an
+empty JSONL files array. Each task needs a concrete verification step.` : `Before closing this review, synthesize the findings above into a flat list of
+build-actionable tasks. Each task derives from a specific finding — no padding.`}
+${conditionalWrites ? `Always emit the markdown section. Write its JSONL artifact for \`/autoplan\` only when the ${storagePolicy} permits it; otherwise label the complete task output not persisted and do not claim an aggregation artifact exists.` : 'Emit the markdown section AND write a JSONL artifact that `/autoplan` can\naggregate across phases.'}
 
 ### Markdown section (always emit)
 
@@ -42,9 +50,9 @@ Rules:
 - P1 blocks ship; P2 should land same branch; P3 is a follow-up TODO.
 - If a finding produced no actionable task, do not invent one.
 - If a section had zero findings, emit \`_No new tasks from <section>._\`
-- Effort uses the AI-compression table from CLAUDE.md.
+- ${conditionalWrites ? 'Show human-team and CC+gstack effort estimates. Default task-type ratios (human ÷ CC time): scaffolding ~100x, tests ~50x, features ~30x, bug fix with regression ~20x, architecture ~5x, research ~3x. Adjust to the actual work and state the assumption.' : 'Effort uses the AI-compression table from CLAUDE.md.'}
 
-### JSONL artifact (always write, even if zero tasks)
+### JSONL artifact (${conditionalWrites ? 'write when permitted, including zero tasks' : 'always write, even if zero tasks'})
 
 \`/autoplan\` reads this file to aggregate across phases. Build each line with
 \`jq -nc\` so titles and source findings containing quotes, newlines, or
@@ -84,7 +92,7 @@ jq -nc \\
 If \`jq\` is not installed, fall back to skipping the JSONL write and warn
 the user to install jq for autoplan aggregation. Never hand-roll JSONL.
 
-If zero tasks were identified in this review, still touch the JSONL file
+${conditionalWrites ? 'When writes are permitted and zero tasks were identified, touch the JSONL file' : 'If zero tasks were identified in this review, still touch the JSONL file'}
 (\`: > "$TASKS_FILE"\`) so the aggregator sees that the phase produced output
 this run (an empty file means "ran, no findings" — distinct from "didn't run").
 `;
@@ -118,8 +126,12 @@ if command -v jq >/dev/null 2>&1; then
       # Filter to current branch + recent commits, then keep records for the
       # latest run_id only. (Single phase may have multiple files if the user
       # re-ran the review; aggregator takes the newest.)
+      # .commit must be bound BEFORE piping to the split commit array: a
+      # pipe rebinds jq's context, so a bare .commit after it indexes the
+      # ARRAY with a string, every line errors into 2>/dev/null, and the
+      # aggregate is empty forever — the #2018 zero-tasks bug.
       jq -c --arg branch "$BRANCH" --arg commits "$COMMITS_RECENT" \\
-        'select(.branch == $branch and ($commits | split("|") | index(.commit) != null))' \\
+        '.commit as $c | select(.branch == $branch and ($commits | split("|") | index($c) != null))' \\
         "$f" 2>/dev/null >> "$ALL_JSONL" || true
     done < <(find "$TASKS_DIR" -maxdepth 1 -name "tasks-$phase-*.jsonl" 2>/dev/null | sort)
     # Reduce to latest run_id per phase

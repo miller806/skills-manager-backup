@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "fa51c877-11d4-4267-bbf2-919866f15e81",
+  "path": "feishu-screenshot",
+  "path_key": "feishu-screenshot",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

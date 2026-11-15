@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "b7fee9b2-3bd5-4593-b401-6290775baa46",
+  "path": "youtube-factory",
+  "path_key": "youtube-factory",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

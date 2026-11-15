@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "8448196d-6f59-43d9-afee-11d979c1aa45",
+  "path": "autoglm-image-edit",
+  "path_key": "autoglm-image-edit",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

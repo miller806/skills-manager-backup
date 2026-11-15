@@ -69,7 +69,7 @@ else
   fi
 fi`;
   try {
-    const stdout = execSync(script, { shell: "/bin/bash", encoding: "utf8" });
+    const stdout = execSync(script, { shell: "/bin/bash", encoding: "utf8", timeout: 30_000 });
     return { stdout: stdout.trim(), code: 0 };
   } catch (e: any) {
     return { stdout: (e.stdout || "").toString().trim(), code: e.status ?? 1 };
@@ -88,7 +88,7 @@ if [ -f package.json ]; then
   node -e 'const fs=require("fs"),p=require("./package.json");p.version=process.argv[1];fs.writeFileSync("package.json",JSON.stringify(p,null,2)+"\\n")' "$NEW_VERSION"
 fi`;
   try {
-    execSync(script, { shell: "/bin/bash", stdio: "pipe" });
+    execSync(script, { shell: "/bin/bash", stdio: "pipe", timeout: 30_000 });
     return { code: 0 };
   } catch (e: any) {
     return { code: e.status ?? 1 };
@@ -104,7 +104,7 @@ if ! printf '%s' "$REPAIR_VERSION" | grep -qE '^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]
 fi
 node -e 'const fs=require("fs"),p=require("./package.json");p.version=process.argv[1];fs.writeFileSync("package.json",JSON.stringify(p,null,2)+"\\n")' "$REPAIR_VERSION"`;
   try {
-    execSync(script, { shell: "/bin/bash", stdio: "pipe" });
+    execSync(script, { shell: "/bin/bash", stdio: "pipe", timeout: 30_000 });
     return { code: 0 };
   } catch (e: any) {
     return { code: e.status ?? 1 };
@@ -113,6 +113,37 @@ node -e 'const fs=require("fs"),p=require("./package.json");p.version=process.ar
 
 const pkgVersion = () =>
   JSON.parse(readFileSync(join(dir, "package.json"), "utf8")).version;
+
+test("rendered drift repair rejoins the existing-version queue check", () => {
+  const ship = readFileSync(join(import.meta.dir, '../ship/SKILL.md'), 'utf8');
+  const version = ship.slice(ship.indexOf('## Step 12:'), ship.indexOf('## Step 14:')).replace(/\s+/g, ' ');
+  expect(version).toMatch(/DRIFT_STALE_PKG[^\n]+repair[^\n]+reclassify[^\n]+ALREADY_BUMPED[^\n]+queue/);
+  expect(version).toContain('--current-version "$BASE_VERSION"');
+  expect(version).toContain('CANDIDATE_VERSION');
+  expect(version).toMatch(/keep[^\n]+NEW_VERSION[^\n]+currentVersion/);
+});
+
+test("rendered queue dispatch preserves offline git candidates without empty fallback fallthrough", () => {
+  const ship = readFileSync(join(import.meta.dir, '../ship/SKILL.md'), 'utf8');
+  const qualifyAt = ship.indexOf('**Qualify first:**');
+  const usableAt = ship.indexOf('**Usable candidate:**');
+  const missingAt = ship.indexOf('**No usable candidate:**');
+  expect(qualifyAt).toBeGreaterThanOrEqual(0);
+  expect(usableAt).toBeGreaterThan(qualifyAt);
+  expect(usableAt).toBeGreaterThanOrEqual(0);
+  expect(missingAt).toBeGreaterThan(usableAt);
+  const qualify = ship.slice(qualifyAt, usableAt).replace(/\s+/g, ' ');
+  const usable = ship.slice(usableAt, missingAt).replace(/\s+/g, ' ');
+  const missing = ship.slice(missingAt, ship.indexOf('4. **Write the bump**', missingAt)).replace(/\s+/g, ' ');
+  expect(qualify).toContain('require successful utility output and a nonempty valid version');
+  expect(qualify).toContain('`offline:false` qualifies; `offline:true` qualifies only with `fallback:"git"`');
+  expect(qualify).toContain('Offline output without that fallback, failure, malformed output or an empty version is unusable');
+  expect(usable).toContain('warnings and claimed queue');
+  expect(usable).toContain('CANDIDATE_VERSION');
+  expect(missing).toContain('local `BUMP_LEVEL` arithmetic');
+  expect(missing).toContain('ALREADY_BUMPED keeps `currentVersion`');
+  expect(missing).not.toContain('CANDIDATE_VERSION');
+});
 
 // --- Idempotency classification: 6 cases ---
 

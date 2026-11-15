@@ -1,11 +1,5 @@
 {
   "name": "飞书套件",
-  "installedAt": 1775028475498,
-  "source": "marketplace",
-  "iconSource": "https://openplatform-cdn.codebuddy.cn/public/skills/icons/lark-unified.svg",
-  "version": "2.3.0",
-  "skillId": "skill_2053082253572640768",
-  "skillName": "lark-unified",
-  "iconLocalPath": "C:\\Users\\Administrator\\.workbuddy\\skills\\lark-unified\\_icon.svg",
-  "iconDownloadedFrom": "https://openplatform-cdn.codebuddy.cn/public/skills/icons/lark-unified.svg"
+  "installedAt": 1774878821454,
+  "source": "marketplace"
 }

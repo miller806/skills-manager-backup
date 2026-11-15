@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "ec27e4fa-194e-416c-a21a-6903d4b5df15",
+  "path": "autoglm-open-link",
+  "path_key": "autoglm-open-link",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

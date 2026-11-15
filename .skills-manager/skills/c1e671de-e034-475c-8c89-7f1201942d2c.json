@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "c1e671de-e034-475c-8c89-7f1201942d2c",
+  "path": "feishu-drive-1.0.0",
+  "path_key": "feishu-drive-1.0.0",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

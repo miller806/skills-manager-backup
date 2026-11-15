@@ -1,12 +1,8 @@
 ---
 name: vercel-deploy
-description: "Deploy and manage Vercel projects from the terminal. Use for Vercel deployments, preview or production releases, environment variables, deployment status, logs, and project operations."
-description_zh: "部署和管理 Vercel 项目、环境变量与日志"
-description_en: "Deploy and manage Vercel projects, environments, status and logs"
-version: 1.0.0
-homepage: https://api.skillhub.cn/nightfullstar/vercel-deploy
-allowed-tools: Bash,Read
+description: Deploy and manage Vercel projects. Use when deploying applications to Vercel, managing environment variables, checking deployment status, viewing logs, or performing Vercel operations. Supports production and preview deployments. Practical infrastructure operations - no "AI will build your app" magic.
 ---
+
 # Vercel Deployment & Management
 
 Deploy and manage Vercel projects. No "AI will build your app" nonsense - just practical Vercel operations.
