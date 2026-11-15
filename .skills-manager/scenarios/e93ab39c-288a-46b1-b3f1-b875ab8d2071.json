@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "scenario_id": "e93ab39c-288a-46b1-b3f1-b875ab8d2071",
-  "name": "Motion",
-  "description": "网页动效：anime.js / CSS / Lottie / three.js / WAAPI",
-  "icon": null,
-  "sort_order": 999
-}
