@@ -1,9 +1,0 @@
-{
-  "name": "TencentOS宕机分析助手",
-  "slug": "crash-expert-skill",
-  "version": "1.0.0",
-  "installedAt": 1779411795975,
-  "source": "marketplace",
-  "iconSource": "crash-expert-skill",
-  "preinstalledTemplate": true
-}

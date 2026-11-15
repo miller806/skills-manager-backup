@@ -1,9 +1,0 @@
-{
-  "name": "健康打卡",
-  "slug": "healthcheck",
-  "version": "1.0.2",
-  "installedAt": 1779411796013,
-  "source": "marketplace",
-  "iconSource": "healthcheck",
-  "preinstalledTemplate": true
-}

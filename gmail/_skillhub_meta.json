@@ -1,9 +1,0 @@
-{
-  "name": "Gmail",
-  "slug": "gmail",
-  "version": "1.0.8",
-  "installedAt": 1779411796003,
-  "source": "marketplace",
-  "iconSource": "gmail",
-  "preinstalledTemplate": true
-}

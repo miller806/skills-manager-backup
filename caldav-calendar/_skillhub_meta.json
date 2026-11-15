@@ -1,9 +1,0 @@
-{
-  "name": "CalDAV 日历",
-  "slug": "caldav-calendar",
-  "version": "1.0.1",
-  "installedAt": 1779411796004,
-  "source": "marketplace",
-  "iconSource": "caldav-calendar",
-  "preinstalledTemplate": true
-}

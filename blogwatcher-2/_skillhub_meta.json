@@ -1,9 +1,0 @@
-{
-  "name": "博客监控",
-  "slug": "blogwatcher",
-  "version": "1.0.0",
-  "installedAt": 1779411796021,
-  "source": "marketplace",
-  "iconSource": "blogwatcher",
-  "preinstalledTemplate": true
-}

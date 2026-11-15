@@ -1,4 +1,0 @@
-interface:
-  display_name: "安全审计变更记录"
-  short_description: "按功能整理版本变化，附服务、入口与代码依据，帮助安全团队定位审计范围"
-  default_prompt: "使用 $audit-change-notes，根据指定版本范围生成功能变更记录，供安全团队审计。"

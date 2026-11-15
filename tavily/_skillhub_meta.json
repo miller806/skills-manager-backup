@@ -1,9 +1,0 @@
-{
-  "name": "Tavily AI Search",
-  "slug": "tavily",
-  "version": "1.0.0",
-  "installedAt": 1779411796075,
-  "source": "marketplace",
-  "iconSource": "tavily",
-  "preinstalledTemplate": true
-}
