@@ -1,0 +1,4 @@
+interface:
+  display_name: "Coding Style"
+  short_description: "Match Java code to repository conventions"
+  default_prompt: "Use $coding-style to implement this change in the repository's established Java style."

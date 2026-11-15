@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pi 协作总管"
+  short_description: "将检索、整理和初筛交给 pi，Codex 聚焦关键判断与必要复核，减少上下文消耗"
+  default_prompt: "使用 $pi-orchestrator，优先让 pi 承担当前任务中的检索、整理和低风险检查，你负责关键判断与必要复核，以减少 Codex token 消耗。"

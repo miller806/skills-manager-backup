@@ -1,0 +1,9 @@
+{
+  "name": "setup-pre-commit",
+  "slug": "setup-pre-commit",
+  "version": "1.0.0",
+  "installedAt": 1779411796001,
+  "source": "marketplace",
+  "iconSource": "setup-pre-commit",
+  "preinstalledTemplate": true
+}

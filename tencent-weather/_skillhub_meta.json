@@ -1,0 +1,9 @@
+{
+  "name": "tencent-weather",
+  "slug": "tencent-weather",
+  "version": "1.0.0",
+  "installedAt": 1779411795977,
+  "source": "marketplace",
+  "iconSource": "tencent-weather",
+  "preinstalledTemplate": true
+}

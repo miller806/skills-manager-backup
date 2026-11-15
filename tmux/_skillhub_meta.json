@@ -1,0 +1,9 @@
+{
+  "name": "tmux",
+  "slug": "tmux",
+  "version": "1.0.0",
+  "installedAt": 1779411796034,
+  "source": "marketplace",
+  "iconSource": "tmux",
+  "preinstalledTemplate": true
+}

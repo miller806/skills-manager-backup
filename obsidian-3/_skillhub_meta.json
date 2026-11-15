@@ -1,0 +1,11 @@
+{
+  "name": "obsidian",
+  "installedAt": 1775723695522,
+  "source": "marketplace",
+  "iconSource": "https://openplatform-cdn.codebuddy.cn/public/operation-platform/skill-icons/skill_2053082563940843521/9580e66c5a18e746.png",
+  "version": "1.0.0",
+  "skillId": "skill_2053082563940843521",
+  "iconLocalPath": "C:\\Users\\Administrator\\.workbuddy\\skills\\skill_2053082563940843521\\_icon.png",
+  "iconDownloadedFrom": "https://openplatform-cdn.codebuddy.cn/public/operation-platform/skill-icons/skill_2053082563940843521/9580e66c5a18e746.png",
+  "skillName": "obsidian"
+}
