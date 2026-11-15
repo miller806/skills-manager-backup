@@ -6,7 +6,7 @@
   "tools": {
     "claude_code": true,
     "codex": true,
-    "deepseek_harness": true,
+    "deepseek_harness": false,
     "pi": true
   }
 }
