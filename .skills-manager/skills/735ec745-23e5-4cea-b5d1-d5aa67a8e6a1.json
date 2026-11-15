@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "735ec745-23e5-4cea-b5d1-d5aa67a8e6a1",
+  "path": "obsidian-ontology-sync",
+  "path_key": "obsidian-ontology-sync",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

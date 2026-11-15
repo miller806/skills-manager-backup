@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "ce4830a5-3dfa-44d8-9be1-66c66fe3a9a9",
+  "path": "blog-writer",
+  "path_key": "blog-writer",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

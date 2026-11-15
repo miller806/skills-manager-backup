@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "0772dfb3-f0d4-49df-87ca-194b6ae90327",
+  "path": "daily-ai-news",
+  "path_key": "daily-ai-news",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "08ab6110-4156-4b1c-afec-b7e2140f537d",
+  "path": "content-strategy",
+  "path_key": "content-strategy",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

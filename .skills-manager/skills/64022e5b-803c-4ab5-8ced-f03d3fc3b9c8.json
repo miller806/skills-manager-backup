@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "64022e5b-803c-4ab5-8ced-f03d3fc3b9c8",
+  "path": "SEO (Site Audit + Content Writer + Competitor Analysis)",
+  "path_key": "seo (site audit + content writer + competitor analysis)",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

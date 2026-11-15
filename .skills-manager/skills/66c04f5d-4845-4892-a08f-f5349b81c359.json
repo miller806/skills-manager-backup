@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "66c04f5d-4845-4892-a08f-f5349b81c359",
+  "path": "aminer-data-search",
+  "path_key": "aminer-data-search",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

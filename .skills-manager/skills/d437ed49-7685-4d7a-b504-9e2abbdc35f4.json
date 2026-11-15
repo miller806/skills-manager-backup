@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "d437ed49-7685-4d7a-b504-9e2abbdc35f4",
+  "path": "test-runner-1.0.0",
+  "path_key": "test-runner-1.0.0",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

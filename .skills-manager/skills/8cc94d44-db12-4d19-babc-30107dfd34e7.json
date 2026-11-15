@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "8cc94d44-db12-4d19-babc-30107dfd34e7",
+  "path": "adcp-advertising",
+  "path_key": "adcp-advertising",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

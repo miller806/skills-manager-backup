@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "f65a4acf-7397-4f4f-8d17-0d11428ca494",
+  "path": "interview-designer",
+  "path_key": "interview-designer",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

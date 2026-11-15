@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "6d013497-a6bf-40ff-b098-ca2797ce02eb",
+  "path": "autoglm-search-image",
+  "path_key": "autoglm-search-image",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

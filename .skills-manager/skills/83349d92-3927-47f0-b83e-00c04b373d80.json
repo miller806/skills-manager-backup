@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "83349d92-3927-47f0-b83e-00c04b373d80",
+  "path": "self-reflection",
+  "path_key": "self-reflection",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "0f50d6ed-ae59-4a88-9ec7-000de1ba77f9",
+  "path": "video-frames",
+  "path_key": "video-frames",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

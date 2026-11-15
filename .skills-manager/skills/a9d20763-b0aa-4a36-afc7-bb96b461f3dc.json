@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "a9d20763-b0aa-4a36-afc7-bb96b461f3dc",
+  "path": "autoglm-file-upload",
+  "path_key": "autoglm-file-upload",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}
