@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "scenario_id": "0fedd627-3eaf-46e4-adfa-4cac8cff7c93",
-  "name": "飞书工具",
+  "name": "工具·飞书",
   "description": "消息、云文档、多维表格、电子表格、日历、任务（官方 larksuite/cli）",
   "icon": null,
   "sort_order": 999
