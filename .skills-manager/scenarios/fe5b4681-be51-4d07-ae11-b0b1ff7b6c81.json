@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "scenario_id": "fe5b4681-be51-4d07-ae11-b0b1ff7b6c81",
-  "name": "Platforms",
-  "description": "外部平台集成：飞书 Lark CLI、OpenClaw / Hermes",
-  "icon": null,
-  "sort_order": 999
-}
