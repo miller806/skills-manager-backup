@@ -4,7 +4,9 @@
   "path": "baoyu-image-gen",
   "path_key": "baoyu-image-gen",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "baoyu"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-image-gen",

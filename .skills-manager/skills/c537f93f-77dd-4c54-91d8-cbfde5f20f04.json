@@ -4,7 +4,9 @@
   "path": "remotion-to-hyperframes",
   "path_key": "remotion-to-hyperframes",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "hyperframes"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "heygen-com/hyperframes/remotion-to-hyperframes",

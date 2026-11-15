@@ -4,7 +4,9 @@
   "path": "baoyu-imagine",
   "path_key": "baoyu-imagine",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "baoyu"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-imagine",

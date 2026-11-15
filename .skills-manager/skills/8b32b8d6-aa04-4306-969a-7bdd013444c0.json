@@ -4,7 +4,9 @@
   "path": "minimax-image-to-video",
   "path_key": "minimax-image-to-video",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "local"
+  ],
   "source": {
     "type": "import",
     "ref": null,

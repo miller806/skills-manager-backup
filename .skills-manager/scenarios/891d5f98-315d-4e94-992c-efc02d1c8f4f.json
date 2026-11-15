@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "scenario_id": "891d5f98-315d-4e94-992c-efc02d1c8f4f",
-  "name": "ui-ux",
-  "description": "ui-ux技能聚合",
+  "name": "Design",
+  "description": "UI/UX 与视觉设计：品牌、设计系统、组件样式、幻灯片、横幅",
   "icon": "target",
   "sort_order": 999
 }

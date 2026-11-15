@@ -4,7 +4,9 @@
   "path": "baoyu-youtube-transcript",
   "path_key": "baoyu-youtube-transcript",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "baoyu"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-youtube-transcript",

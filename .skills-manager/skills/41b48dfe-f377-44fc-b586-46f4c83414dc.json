@@ -4,7 +4,9 @@
   "path": "waapi",
   "path_key": "waapi",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "hyperframes"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "heygen-com/hyperframes/waapi",

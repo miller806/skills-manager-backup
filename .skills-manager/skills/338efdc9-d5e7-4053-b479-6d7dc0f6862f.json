@@ -4,7 +4,9 @@
   "path": "baoyu-wechat-summary",
   "path_key": "baoyu-wechat-summary",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "baoyu"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-wechat-summary",

@@ -4,7 +4,9 @@
   "path": "hyperframes-registry",
   "path_key": "hyperframes-registry",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "hyperframes"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "heygen-com/hyperframes/hyperframes-registry",

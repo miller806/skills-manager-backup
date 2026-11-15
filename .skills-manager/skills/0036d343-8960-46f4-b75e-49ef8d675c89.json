@@ -4,7 +4,9 @@
   "path": "baoyu-image-cards",
   "path_key": "baoyu-image-cards",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "baoyu"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-image-cards",

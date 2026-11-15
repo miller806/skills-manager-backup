@@ -4,7 +4,9 @@
   "path": "hyperframes-media",
   "path_key": "hyperframes-media",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "hyperframes"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "heygen-com/hyperframes/hyperframes-media",

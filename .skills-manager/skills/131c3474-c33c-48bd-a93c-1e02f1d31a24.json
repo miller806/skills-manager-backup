@@ -4,7 +4,9 @@
   "path": "skills-security-check",
   "path_key": "skills-security-check",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "local"
+  ],
   "source": {
     "type": "import",
     "ref": null,

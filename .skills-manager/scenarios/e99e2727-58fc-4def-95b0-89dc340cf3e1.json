@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "scenario_id": "e99e2727-58fc-4def-95b0-89dc340cf3e1",
+  "name": "Visual",
+  "description": "成品视觉模板：信息图、图表、漫画、封面、卡片、slide 图",
+  "icon": null,
+  "sort_order": 999
+}

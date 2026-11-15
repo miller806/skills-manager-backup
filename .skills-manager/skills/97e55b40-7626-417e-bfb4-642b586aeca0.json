@@ -4,7 +4,9 @@
   "path": "baoyu-post-to-x",
   "path_key": "baoyu-post-to-x",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "baoyu"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-post-to-x",

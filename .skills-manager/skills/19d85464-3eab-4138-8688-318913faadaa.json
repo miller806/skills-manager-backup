@@ -4,7 +4,9 @@
   "path": "css-animations",
   "path_key": "css-animations",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "hyperframes"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "heygen-com/hyperframes/css-animations",

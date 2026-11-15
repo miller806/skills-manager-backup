@@ -4,7 +4,9 @@
   "path": "baoyu-url-to-markdown",
   "path_key": "baoyu-url-to-markdown",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "baoyu"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-url-to-markdown",

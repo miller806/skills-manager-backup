@@ -4,7 +4,9 @@
   "path": "baoyu-infographic",
   "path_key": "baoyu-infographic",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "baoyu"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-infographic",

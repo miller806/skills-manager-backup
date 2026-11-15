@@ -4,7 +4,9 @@
   "path": "baoyu-post-to-wechat",
   "path_key": "baoyu-post-to-wechat",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "baoyu"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-post-to-wechat",

@@ -4,7 +4,9 @@
   "path": "baoyu-comic",
   "path_key": "baoyu-comic",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "baoyu"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-comic",

@@ -4,7 +4,9 @@
   "path": "browser-use-2",
   "path_key": "browser-use-2",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "local"
+  ],
   "source": {
     "type": "import",
     "ref": null,

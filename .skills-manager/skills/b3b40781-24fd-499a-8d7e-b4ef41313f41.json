@@ -4,7 +4,9 @@
   "path": "animejs",
   "path_key": "animejs",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "hyperframes"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "heygen-com/hyperframes/animejs",

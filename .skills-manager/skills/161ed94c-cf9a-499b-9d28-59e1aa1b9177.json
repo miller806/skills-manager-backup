@@ -4,7 +4,9 @@
   "path": "answer-me-with-html",
   "path_key": "answer-me-with-html",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "QingYunA"
+  ],
   "source": {
     "type": "git",
     "ref": "https://github.com/QingYunA/answer-me-with-html",

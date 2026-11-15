@@ -4,7 +4,9 @@
   "path": "slides",
   "path_key": "slides",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "ui-ux-pro-max"
+  ],
   "source": {
     "type": "git",
     "ref": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",

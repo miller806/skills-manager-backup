@@ -4,7 +4,9 @@
   "path": "hyperframes-cli",
   "path_key": "hyperframes-cli",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "hyperframes"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "heygen-com/hyperframes/hyperframes-cli",

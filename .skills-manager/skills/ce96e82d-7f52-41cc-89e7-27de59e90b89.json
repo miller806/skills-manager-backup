@@ -4,7 +4,9 @@
   "path": "flutter-dev-2",
   "path_key": "flutter-dev-2",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "local"
+  ],
   "source": {
     "type": "import",
     "ref": null,

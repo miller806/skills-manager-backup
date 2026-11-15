@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "scenario_id": "4f8bde34-c9b3-47aa-bf82-bbd2c796950e",
+  "name": "Content",
+  "description": "内容生产与发布：抓取/翻译/排版、公众号与 X 发布、笔记",
+  "icon": null,
+  "sort_order": 999
+}

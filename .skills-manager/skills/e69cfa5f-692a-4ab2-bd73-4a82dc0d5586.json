@@ -4,7 +4,9 @@
   "path": "lottie",
   "path_key": "lottie",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "hyperframes"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "heygen-com/hyperframes/lottie",

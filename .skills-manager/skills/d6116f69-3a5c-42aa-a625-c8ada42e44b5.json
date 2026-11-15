@@ -4,7 +4,9 @@
   "path": "baoyu-compress-image",
   "path_key": "baoyu-compress-image",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "baoyu"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-compress-image",

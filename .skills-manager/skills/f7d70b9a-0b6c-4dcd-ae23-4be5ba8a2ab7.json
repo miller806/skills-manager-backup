@@ -4,7 +4,9 @@
   "path": "minimax-xlsx",
   "path_key": "minimax-xlsx",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "local"
+  ],
   "source": {
     "type": "import",
     "ref": null,

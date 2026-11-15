@@ -4,7 +4,9 @@
   "path": "baoyu-danger-gemini-web",
   "path_key": "baoyu-danger-gemini-web",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "baoyu"
+  ],
   "source": {
     "type": "skillssh",
     "ref": "jimliu/baoyu-skills/baoyu-danger-gemini-web",

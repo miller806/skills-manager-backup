@@ -4,7 +4,9 @@
   "path": "apikey-image-gen",
   "path_key": "apikey-image-gen",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "local"
+  ],
   "source": {
     "type": "import",
     "ref": null,

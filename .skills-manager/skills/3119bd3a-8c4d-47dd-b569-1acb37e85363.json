@@ -4,7 +4,9 @@
   "path": "android-native-dev-2",
   "path_key": "android-native-dev-2",
   "enabled": true,
-  "tags": [],
+  "tags": [
+    "local"
+  ],
   "source": {
     "type": "import",
     "ref": null,
