@@ -5,7 +5,8 @@
   "path_key": "baoyu-danger-gemini-web",
   "enabled": true,
   "tags": [
-    "baoyu"
+    "baoyu",
+    "risky"
   ],
   "source": {
     "type": "skillssh",

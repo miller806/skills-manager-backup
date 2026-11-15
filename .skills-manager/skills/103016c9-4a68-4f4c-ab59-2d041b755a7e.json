@@ -5,7 +5,8 @@
   "path_key": "baoyu-danger-x-to-markdown",
   "enabled": true,
   "tags": [
-    "baoyu"
+    "baoyu",
+    "risky"
   ],
   "source": {
     "type": "skillssh",
