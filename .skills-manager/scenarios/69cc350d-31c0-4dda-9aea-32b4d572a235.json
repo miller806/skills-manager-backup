@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "scenario_id": "69cc350d-31c0-4dda-9aea-32b4d572a235",
+  "name": "技能管理",
+  "description": "关于 skill 自己的元技能：发现安装、写新技能、审计安全、库整体管理",
+  "icon": null,
+  "sort_order": 999
+}

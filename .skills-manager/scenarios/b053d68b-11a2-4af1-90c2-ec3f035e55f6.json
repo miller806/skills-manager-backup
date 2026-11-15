@@ -2,7 +2,7 @@
   "schema_version": 1,
   "scenario_id": "b053d68b-11a2-4af1-90c2-ec3f035e55f6",
   "name": "基础工作流",
-  "description": "任何工作都要用的底层流程：编排、计划、TDD、调试、代码评审、发版、skill 管理",
+  "description": "开发工作的底层流程：编排、计划、TDD、调试、代码评审、分支与发版",
   "icon": "briefcase",
   "sort_order": 0
 }
