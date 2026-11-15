@@ -4,13 +4,11 @@
   "path": "frontend-design",
   "path_key": "frontend-design",
   "enabled": true,
-  "tags": [
-    "local"
-  ],
+  "tags": [],
   "source": {
-    "type": "import",
-    "ref": null,
-    "subpath": null,
+    "type": "git",
+    "ref": "anthropics/skills",
+    "subpath": "skills/frontend-design",
     "branch": null
   }
 }
