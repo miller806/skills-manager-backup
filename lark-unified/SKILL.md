@@ -18,7 +18,7 @@ Lark (飞书) is a comprehensive collaboration platform combining messaging, doc
 - `lark-cli config init` (interactive)
 - `lark-cli config set-default`
 
-These require a TTY, output a broken QR code in WorkBuddy, and must never be used.
+These require a TTY and print a broken QR code in non-interactive shells (agent sandboxes, CI, headless runs), so they must never be used.
 
 **REQUIRED setup procedure — follow exactly:**
 
@@ -46,15 +46,38 @@ fi
 If step 2 prints `NOT_CONFIGURED`, run the setup script:
 
 ```bash
-SETUP=$(find ~/.workbuddy/skills -name lark_setup.py 2>/dev/null | head -1)
-LARK_CLI="$LARK_CLI" python3 "$SETUP"
+# Locate lark_setup.py — it ships inside THIS skill's own scripts/ directory.
+# The skill dir differs per agent, so probe the known roots first, then do a bounded search.
+SETUP=""
+for base in "$HOME/.claude/skills" "$HOME/.codex/skills" "$HOME/.pi/agent/skills" \
+            "$HOME/.dsh/skills" "$HOME/.cursor/skills" "$HOME/.agents/skills" \
+            "$HOME/.config/opencode/skills" "$HOME/.skills-manager/skills"; do
+  if [ -f "$base/lark-unified/scripts/lark_setup.py" ]; then
+    SETUP="$base/lark-unified/scripts/lark_setup.py"; break
+  fi
+done
+[ -n "$SETUP" ] || SETUP=$(find "$HOME" -maxdepth 6 -path '*lark-unified/scripts/lark_setup.py' 2>/dev/null | head -1)
+[ -n "$SETUP" ] || { echo "LARK_SETUP_NOT_FOUND"; exit 1; }
+
+# Resolve a WORKING Python. On Windows, python3/python often resolve to the
+# Microsoft Store alias stubs, which exit 49 with no output — test before trusting.
+PY=""
+for cand in python3 python; do
+  if command -v "$cand" >/dev/null 2>&1 && "$cand" -c 'import sys' >/dev/null 2>&1; then PY="$cand"; break; fi
+done
+if [ -z "$PY" ]; then
+  py -3 -c 'import sys' >/dev/null 2>&1 && PY="py -3"
+fi
+[ -n "$PY" ] || { echo "PYTHON_NOT_FOUND"; exit 1; }
+
+LARK_CLI="$LARK_CLI" $PY "$SETUP"
 
 # Lark (international) users:
-LARK_CLI="$LARK_CLI" python3 "$SETUP" --brand lark
+LARK_CLI="$LARK_CLI" $PY "$SETUP" --brand lark
 
 # If browser cannot open automatically:
 # Print the URL clearly, ask the user to open it in a browser, and keep this command running while it polls.
-LARK_CLI="$LARK_CLI" python3 "$SETUP" --no-browser
+LARK_CLI="$LARK_CLI" $PY "$SETUP" --no-browser
 ```
 
 **IMPORTANT: The setup script is a multi-step device flow.**

@@ -31,8 +31,16 @@ After creating the app via `lark_setup.py`, go to the app console and add these 
 After adding permissions: **publish a new version** in the app console, then re-run the setup script to get a fresh token with the new scopes:
 
 ```bash
-SETUP=$(find ~/.workbuddy/skills -name lark_setup.py 2>/dev/null | head -1)
-python3 "$SETUP"
+SETUP=$(find "$HOME" -maxdepth 6 -path '*lark-unified/scripts/lark_setup.py' 2>/dev/null | head -1)
+[ -n "$SETUP" ] || { echo "LARK_SETUP_NOT_FOUND"; exit 1; }
+# Windows: python3/python may be Microsoft Store alias stubs that exit 49 silently.
+PY=""
+for cand in python3 python; do
+  command -v "$cand" >/dev/null 2>&1 && "$cand" -c 'import sys' >/dev/null 2>&1 && PY="$cand" && break
+done
+[ -n "$PY" ] || { py -3 -c 'import sys' >/dev/null 2>&1 && PY="py -3"; }
+[ -n "$PY" ] || { echo "PYTHON_NOT_FOUND"; exit 1; }
+$PY "$SETUP"
 ```
 
 ## Quick Start: Configure Credentials
@@ -45,7 +53,7 @@ lark-cli config show
 
 If not configured, use the inline setup script from SKILL.md (no TTY required).
 
-**NEVER use `lark-cli config init` or `lark-cli config init --new` directly** — these require an interactive TTY and will display a broken QR code or hang in WorkBuddy.
+**NEVER use `lark-cli config init` or `lark-cli config init --new` directly** — these require an interactive TTY and will display a broken QR code or hang in any non-interactive shell (agent sandbox, CI, headless run).
 
 **Manual alternative** (if you already have an App ID and App Secret):
 ```bash

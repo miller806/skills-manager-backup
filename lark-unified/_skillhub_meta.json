@@ -8,6 +8,6 @@
   "skillName": "lark-unified",
   "description_zh": "飞书/Lark 全能套件（消息、文档、表格、日历、任务、Wiki 等 11 个业务域）",
   "description_en": "Lark/Feishu unified CLI: messaging, docs, sheets, calendar, tasks, wiki & more",
-  "iconLocalPath": "C:\\Users\\scofe\\.workbuddy\\skills\\lark-unified\\_icon.svg",
+  "iconLocalPath": "C:\\Users\\scofe\\.skills-manager\\skills\\lark-unified\\_icon.svg",
   "iconDownloadedFrom": "https://openplatform-cdn.codebuddy.cn/public/skills/icons/lark-unified.svg"
 }
