@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "scenario_id": "b2447997-8d28-42a1-b68a-1e7c2e7e6ac8",
-  "name": "AppDev",
-  "description": "应用与端侧开发：Android / Flutter / 浏览器自动化 / 网页测试",
+  "name": "移动开发",
+  "description": "端侧应用开发：Android、Flutter、网页应用测试与浏览器自动化",
   "icon": null,
   "sort_order": 999
 }

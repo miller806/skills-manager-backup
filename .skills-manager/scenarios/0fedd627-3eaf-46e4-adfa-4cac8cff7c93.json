@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "scenario_id": "0fedd627-3eaf-46e4-adfa-4cac8cff7c93",
+  "name": "平台对接",
+  "description": "外部平台集成：飞书 Lark CLI、Kimi WebBridge 浏览器接管",
+  "icon": null,
+  "sort_order": 999
+}

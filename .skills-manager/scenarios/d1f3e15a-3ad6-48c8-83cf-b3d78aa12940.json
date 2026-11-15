@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "scenario_id": "d1f3e15a-3ad6-48c8-83cf-b3d78aa12940",
-  "name": "Media",
-  "description": "图像/视频生成、剪辑与合成（生图接口 + Remotion / HyperFrames）",
+  "name": "视频·动效",
+  "description": "视频与动效工程：HyperFrames 时间线、渲染、现成动效块",
   "icon": null,
   "sort_order": 999
 }
