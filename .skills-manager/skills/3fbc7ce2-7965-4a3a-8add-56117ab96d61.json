@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "skill_id": "3fbc7ce2-7965-4a3a-8add-56117ab96d61",
+  "path": "kimi-webbridge",
+  "path_key": "kimi-webbridge",
+  "enabled": true,
+  "tags": [
+    "kimi"
+  ],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

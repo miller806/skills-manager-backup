@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "scenario_id": "0cd32814-2d2c-4fa1-a11d-c2a90600f149",
+  "name": "S·逆向分析",
+  "description": "Electron 应用拆包、asar 解包、源码还原、代码安全审计",
+  "icon": "search",
+  "sort_order": 7
+}

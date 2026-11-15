@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "skill_id": "2196b77d-af02-46ce-9c88-4c6b8c7adca6",
+  "path": "code-audit-agent",
+  "path_key": "code-audit-agent",
+  "enabled": true,
+  "tags": [
+    "jeekoo"
+  ],
+  "source": {
+    "type": "git",
+    "ref": "https://github.com/jeekoo-org/code-audit-agent",
+    "subpath": null,
+    "branch": null
+  }
+}
