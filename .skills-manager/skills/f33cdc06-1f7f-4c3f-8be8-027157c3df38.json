@@ -5,7 +5,8 @@
   "path_key": "browser-use-2",
   "enabled": true,
   "tags": [
-    "local"
+    "local",
+    "overlap"
   ],
   "source": {
     "type": "import",
