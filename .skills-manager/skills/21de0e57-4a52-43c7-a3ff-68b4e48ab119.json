@@ -10,7 +10,7 @@
   "source": {
     "type": "git",
     "ref": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
-    "subpath": "cli\\assets\\skills\\design-system",
+    "subpath": "cli/assets/skills/design-system",
     "branch": null
   }
 }
