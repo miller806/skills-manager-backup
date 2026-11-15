@@ -7,7 +7,7 @@
     "claude_code": true,
     "codex": true,
     "deepseek_harness": true,
-    "hermes": true,
+    "hermes": false,
     "opencode": true,
     "pi": true,
     "workbuddy": true
