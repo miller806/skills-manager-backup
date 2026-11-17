@@ -10,7 +10,7 @@
   "source": {
     "type": "skillssh",
     "ref": "github/awesome-copilot/git-commit",
-    "subpath": "skills\\git-commit",
+    "subpath": "skills/git-commit",
     "branch": null
   }
 }

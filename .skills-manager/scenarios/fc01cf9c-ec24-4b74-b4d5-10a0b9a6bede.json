@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "scenario_id": "fc01cf9c-ec24-4b74-b4d5-10a0b9a6bede",
+  "name": "S·工程方法",
+  "description": "头脑风暴、计划编写与执行、并行子代理、TDD、系统化调试、代码评审收了、分支收尾、完成前验收（obra/superpowers 全套）",
+  "icon": "code",
+  "sort_order": 999
+}

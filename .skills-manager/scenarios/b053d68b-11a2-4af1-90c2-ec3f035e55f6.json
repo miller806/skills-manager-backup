@@ -2,7 +2,7 @@
   "schema_version": 1,
   "scenario_id": "b053d68b-11a2-4af1-90c2-ec3f035e55f6",
   "name": "S·开发流程",
-  "description": "编排、计划、TDD、调试、代码评审、网页测试、分支与提交、发版",
+  "description": "提交规范、网页测试、代码安全审计",
   "icon": "briefcase",
   "sort_order": 0
 }
