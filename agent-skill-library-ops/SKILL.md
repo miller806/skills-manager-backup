@@ -165,6 +165,20 @@ symlink → ~/.agents/skills/xxx            他工具托管，**不能 adopt**
 - **lark-* 和 ego-browser 永远不收编**：它们的升级链在 lark-cli `/ ego-lite 手里，收编后在 `~/.claude/skills` 会产生双份，两边各自更新就会冲突。
 - **`agent-reach` 也不收编**：它的 SKILL.md 是模板渲染产物（上游 `agent_reach/skill/SKILL.md` 带 `{{VERSION}}`，由 `agent-reach install` 写入真实版本号），且它自带 `agent-reach skill --install` 管理注册。直接接 git 源会拿到未渲染的模板。它自己的升级用 `agent-reach check-update`（pipx 装，`pipx upgrade agent-reach`）。
 
+### 收编 h-ops（多 profile）整批散装技能（已跑通，照这个顺序）
+
+1. `agents add-custom hermes-h-ops --path ~/.hermes/profiles/h-ops/skills --name "Hermes (h-ops)"` —— 内置 `hermes` 指向 default profile，别 enable 它。
+2. **逐个技能目录 adopt**（`skills adopt <单个技能目录>`）：整批 adopt agent 根目录不可行——h-ops 技能在分类子目录里（`devops/x`），且会把 symlink 一起收进来。遍历时用 `os.walk` 递归找 SKILL.md，过滤 `islink`。
+3. adopt 返回的 `name` 可能被改写（`audiocraft` → `audiocraft-audio-generation`、`segment-anything` → `segment-anything-model`），后续操作按返回名。
+4. 按域新建 preset（`presets create` + `add-skill`），别硬塞进已有的。daemon/知识类本地技能可以只入库不归 preset。
+5. **`skills undeploy --agent` 不删真目录**：对真目录它返回 `changed_pairs:0` 且静默成功，因此写不进 `skill_targets`，`deploy` 也等于没做。必须手动换链：
+   ```bash
+   mv <真目录> ~/.hermes/profiles/<p>/skills/.archive/symlink-backup-<date>/
+   ln -s ~/.skills-manager/skills/<name> <原路径>
+   $SM --json skills deploy <name> --agent <p>
+   ```
+   最后回查：`find <agent>/skills -type l -lname '*.skills-manager/skills/*' | wc -l` 与 `skill_targets` 行数对得上，且没有残留的真目录。
+
 ### 收编流程
 
 ```bash
@@ -180,6 +194,13 @@ $SM --json skills adopt ~/.claude/skills --dry-run     # 列候选：但包含 s
 2. **原真目录会阻挡部署**（`TARGET_CONFLICT: is not managed by Skills Manager`）。确认中央库与原目录内容一致后：备份原目录 → `rm -rf` → `ln -s <централ路径> <agent路径>` → 再 `skills deploy <name> --agent <tool>`，才能写上 `skill_targets`。
 
 收尾：`git add` 新增的技能目录与 `.skills-manager/skills/<uuid>.json` 镜像，commit message 用 `skills: adopt ...`。
+
+### 本机已定型的收编结论（2026-11，h-ops）
+
+- **已收编 31 个 h-ops 自有技能 + research-tools**，`S·运维排障`（15）/`S·开发流程`（+github/debugging-tools/software-development-practices）/`M·技能管理`（+agent-skill-library-ops）/`T·研究资料`（research-tools）四个 preset 承载，部署到 claude_code/codex/pi + hermes-h-ops。
+- **不收编 `~/.hermes/skills`（default profile）里的 35 个技能**：那是另一个 profile 自己的库，收编等于替另一个会话改它，且会与 h-ops 的 `github`（同源不同版本）撞名。要收时由对应 profile 自己决定。
+- **分类子目录不需要为收编而拍平**：agent 目录可以是「分类目录 → 软链 → 库根」，Hermes 递归加载，链接计数与 `skill_targets` 一致即可。
+- 收编后**必须再 commit + push 一次**，否则别的机器与快照里没有这些技能目录（app 的 auto backup 有时不覆盖新目录）。
 
 ## 远端可能被别的机器改过 —— **绝不用 git 命令合并/推送**
 
