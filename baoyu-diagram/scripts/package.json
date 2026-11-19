@@ -1,7 +1,0 @@
-{
-  "name": "baoyu-diagram-scripts",
-  "private": true,
-  "dependencies": {
-    "sharp": "0.34.5"
-  }
-}
