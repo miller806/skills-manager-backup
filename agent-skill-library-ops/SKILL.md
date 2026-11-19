@@ -197,20 +197,23 @@ $SM --json skills adopt ~/.claude/skills --dry-run     # 列候选：但包含 s
 
 ### 本机已定型的收编结论（2026-11，h-ops）
 
-- **Hermes 自己封装的技能一律不收编（用户的硬标准）**。识别特征：SKILL.md 有 `version:` + `metadata.hermes.tags`，或出现在 `~/.hermes/profiles/<p>/skills/.bundled_manifest`。这类技能归 Hermes 自身的封装/升级链管，收进 skills-manager 后 `update` 也只会是 `local`，且会与 Hermes 的版本产物打架。2026-11 已按此撤出 13 个（apple-integration、ascii-tools、box、gaming-tools、home-and-location、media-tools、mlops-tooling、music-production、github、debugging-tools、software-development-practices、audiocraft-audio-generation、segment-anything-model），原真目录已还原、库目录已删。
-- **只收「我们自己累积的运维/知识型」技能**：devops/*、经验型排障技能、`agent-skill-library-ops`、`research-tools` 这类无 `version:` 自己写的。
-- **不收编 `~/.hermes/skills`（default profile）里的技能**：那是另一个 profile 自己的库，收编等于替另一个会话改它。要收时由对应 profile 自己决定。
-- **分类子目录不需要为收编而拍平**：agent 目录可以是「分类目录 → 软链 → 库根」，Hermes 递归加载，链接计数与 `skill_targets` 一致即可。
+- **Hermes 封装的技能一律不收编，与哪个 profile 无关（用户硬标准）**。判定「Hermes 封装」要看四条，命中任一即排除：① 技能名在 `~/.agents/.skill-lock.json`（lark-cli / baoyu-skills / vercel 装的都在这，全 profile 共用）；② 在任一 profile 的 `.bundled_manifest`；③ SKILL.md 的 `author: Hermes Agent`；④ `version:` + `metadata.hermes`。
+- ⚠️ **别只看 `metadata.hermes` 判封装**：我们自己在 h-ops 写的运维技能（`ssh-ops-mcp`、`public-exposure-hardening`、`apisix-gateway-ops`…）也带 `metadata.hermes.tags`，但它们是真自己的东西，必须收。反过来 `baoyu-*` / `lark-*` 只带 `metadata.openclaw` 或 `metadata.requires`，不带 hermes —— 用 `metadata.hermes` 做唯一判据会两头都判错。
+- 2026-11 按此共撤出 49 个（13 个 h-ops 侧 hermes 封装 + 22 个 baoyu-* + 7 个 lark-* + kanban/ssh-ops-mcp/public-exposure-hardening/requesting-code-review/systematic-debugging/test-driven-development/find-skills/research-tools），库从 90 降到 42。
+- **撤退顺序（实测踩过坑）：删库目录会让 agent 侧指向它的软链立刻悬空**，Hermes 直接不加载那个技能，而且这类断链在 `os.walk` 里表现为“技能消失”，很容易误判成别的问题。删库前先 `ls -l` 找出指向库的软链并改回真目录，删完必须扫一遍：`find <agent>/skills -type l ! -exec test -e {} \; -print`（应为空）。2026-11 就漏了两个（`public-exposure-hardening`、`ssh-ops-mcp`），事后补回。
+- **分类子目录不需要为收编而拍平**：agent 目录可以是「分类目录 → 软链 → 库根」，Hermes 递归加载。
 - 收编后**必须再 commit + push 一次**，否则别的机器与快照里没有这些技能目录（app 的 auto backup 有时不覆盖新目录）。
 
 ### 收编后再撤销（回滚成散装）的正确顺序
 
-撤出时要**先还原真目录、再删库**，顺序反了会丢内容：
+撤出时要**先还原真目录、再删库**，顺序反了会丢内容，且软链会悬空：
 
 1. `skills undeploy <names> --agent claude_code|codex|pi`（hermes-h-ops 那条撤不掉真目录，忽略）。
-2. 每个技能：`rm <agent 目录里的软链>` → `mv <备份目录的真目录> <原路径>`（备份按 `<分类>-<名>` 或 `sd-<名>` 命名，逐条核对别套错前缀）。
+2. 每个技能：`rm <agent 目录里的软链>` → `mv <备份目录的真目录> <原路径>`（备份按 `<分类>-<名>` 或 `sd-<名>` 命名，逐条核对别套错前缀）。备份目录可能被后来覆盖，移动前先 `ls` 确认。
 3. 校验 `os.path.islink()` 为 False 且 `SKILL.md` 在 → 再 `skills remove <names> --yes`。
-4. 顺手清理库部署时在 agent 目录根部多建的**同名顶层软链**（分类目录里已有一份，留着就是重复技能）。
+4. **删库后再扫一遍断链**（`find <agent>/skills -type l ! -exec test -e {} \; -print`）—— 漏还原的软链会在库目录消失后悬空，Hermes 直接不加载那个技能。
+5. 顺手清理库部署时在 agent 目录根部多建的**同名顶层软链**（分类目录里已有一份，留着就是重复技能）。
+6. 空 preset（成员被清空）用 `presets delete <name> --yes` 收掉。
 
 ## 远端可能被别的机器改过 —— **绝不用 git 命令合并/推送**
 
