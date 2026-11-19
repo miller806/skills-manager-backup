@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "8719a821-4dee-4525-b44f-aa9bc1b2833d",
+  "path": "xxl-job-upgrade",
+  "path_key": "xxl-job-upgrade",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

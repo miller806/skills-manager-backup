@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "83186efc-8a2a-4cb5-ad34-9ebe1360d061",
+  "path": "agent-skill-library-ops",
+  "path_key": "agent-skill-library-ops",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "231f8af5-81e1-4161-9b40-4976258b2a36",
+  "path": "gaming-tools",
+  "path_key": "gaming-tools",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

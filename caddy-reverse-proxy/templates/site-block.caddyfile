@@ -1,0 +1,23 @@
+# 追加到 etc/sites/apple806.cc.caddy 的 handle 块模板
+# 位置：/healthz 健康检查块之后，末尾 404 兜底之前
+
+	# ── <服务名>（容器 <容器端口>，宿主机只绑 127.0.0.1:<宿主端口>）──
+	# caddy 未加入 <网络名>，故走 host.docker.internal
+	@<name> host <sub>.apple806.cc
+	handle @<name> {
+		encode zstd gzip
+		reverse_proxy host.docker.internal:<宿主端口> {
+			header_up X-Forwarded-Proto https
+			transport http {
+				dial_timeout 5s
+				response_header_timeout 60s   # WebSocket/SSE 场景改 3600s
+			}
+		}
+	}
+
+# 需要路径级拆分时（同一子域多种后端）：
+#	@api host <sub>.apple806.cc
+#	@api path /api/*
+#	handle @api { reverse_proxy host.docker.internal:9000 }
+#	@api2 host <sub>.apple806.cc
+#	handle @api2 { reverse_proxy host.docker.internal:8089 }

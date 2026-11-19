@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "e2f5b03d-c56d-42ed-922d-49b991e6b552",
+  "path": "apple-integration",
+  "path_key": "apple-integration",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

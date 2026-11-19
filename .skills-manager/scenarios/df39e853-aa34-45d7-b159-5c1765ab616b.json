@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "scenario_id": "df39e853-aa34-45d7-b159-5c1765ab616b",
+  "name": "S·运维排障",
+  "description": "主机巡检、K8s 与网关排障、入侵排查、CVE 影响评估、暴露面收敛、Flink CDC 与 XXL-JOB 作业运维、自托管服务",
+  "icon": null,
+  "sort_order": 8
+}

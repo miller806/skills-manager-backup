@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "7eb5f7d8-55a4-43f8-b69a-79521fb9e3bf",
+  "path": "flink-cdc-ops",
+  "path_key": "flink-cdc-ops",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

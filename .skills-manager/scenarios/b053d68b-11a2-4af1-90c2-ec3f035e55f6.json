@@ -2,7 +2,7 @@
   "schema_version": 1,
   "scenario_id": "b053d68b-11a2-4af1-90c2-ec3f035e55f6",
   "name": "S·开发流程",
-  "description": "提交规范、网页测试、代码安全审计",
+  "description": "提交规范、网页测试、代码安全审计、GitHub PR 全流程、调试工具、TDD 与工程实践",
   "icon": "briefcase",
   "sort_order": 0
 }

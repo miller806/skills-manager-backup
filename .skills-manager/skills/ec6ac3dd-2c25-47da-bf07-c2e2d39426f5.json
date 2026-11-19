@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "ec6ac3dd-2c25-47da-bf07-c2e2d39426f5",
+  "path": "local-software-version-watch",
+  "path_key": "local-software-version-watch",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

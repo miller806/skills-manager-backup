@@ -4,5 +4,5 @@
   "name": "S·逆向分析",
   "description": "Electron 应用拆包、asar 解包、源码还原、代码安全审计",
   "icon": "search",
-  "sort_order": 8
+  "sort_order": 9
 }
