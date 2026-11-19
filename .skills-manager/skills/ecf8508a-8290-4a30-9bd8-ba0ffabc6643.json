@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "ecf8508a-8290-4a30-9bd8-ba0ffabc6643",
+  "path": "kanban",
+  "path_key": "kanban",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

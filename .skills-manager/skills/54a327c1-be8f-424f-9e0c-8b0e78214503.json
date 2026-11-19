@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "54a327c1-be8f-424f-9e0c-8b0e78214503",
+  "path": "host-health-inspection",
+  "path_key": "host-health-inspection",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

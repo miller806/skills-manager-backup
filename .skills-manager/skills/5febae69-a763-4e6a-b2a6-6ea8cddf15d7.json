@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "5febae69-a763-4e6a-b2a6-6ea8cddf15d7",
+  "path": "caddy-reverse-proxy",
+  "path_key": "caddy-reverse-proxy",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

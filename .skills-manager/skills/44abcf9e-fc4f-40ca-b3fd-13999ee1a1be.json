@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "44abcf9e-fc4f-40ca-b3fd-13999ee1a1be",
+  "path": "ssh-ops-mcp",
+  "path_key": "ssh-ops-mcp",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

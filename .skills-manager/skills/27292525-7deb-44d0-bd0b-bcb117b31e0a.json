@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "27292525-7deb-44d0-bd0b-bcb117b31e0a",
+  "path": "linux-intrusion-triage",
+  "path_key": "linux-intrusion-triage",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

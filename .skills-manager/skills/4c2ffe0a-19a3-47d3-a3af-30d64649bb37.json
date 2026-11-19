@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "4c2ffe0a-19a3-47d3-a3af-30d64649bb37",
+  "path": "tabby-web-selfhost",
+  "path_key": "tabby-web-selfhost",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

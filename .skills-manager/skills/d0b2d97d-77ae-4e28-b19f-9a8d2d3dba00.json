@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "d0b2d97d-77ae-4e28-b19f-9a8d2d3dba00",
+  "path": "mlops-tooling",
+  "path_key": "mlops-tooling",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

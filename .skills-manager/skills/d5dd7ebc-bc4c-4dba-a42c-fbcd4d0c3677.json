@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "d5dd7ebc-bc4c-4dba-a42c-fbcd4d0c3677",
+  "path": "cve-fleet-impact-triage",
+  "path_key": "cve-fleet-impact-triage",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "4360be84-a1b9-4cc6-b28c-4b31f983819c",
+  "path": "hermes-gateway-troubleshooting",
+  "path_key": "hermes-gateway-troubleshooting",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

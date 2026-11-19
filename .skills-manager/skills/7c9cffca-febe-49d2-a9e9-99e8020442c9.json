@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "7c9cffca-febe-49d2-a9e9-99e8020442c9",
+  "path": "k8s-cluster-troubleshooting",
+  "path_key": "k8s-cluster-troubleshooting",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

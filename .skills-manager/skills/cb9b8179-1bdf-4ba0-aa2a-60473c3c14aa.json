@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "cb9b8179-1bdf-4ba0-aa2a-60473c3c14aa",
+  "path": "clash-verge-direct-rules",
+  "path_key": "clash-verge-direct-rules",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "local",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}
