@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "skill_id": "95abac17-9161-4170-875d-7576059aab1f",
-  "path": "segment-anything-model",
-  "path_key": "segment-anything-model",
+  "skill_id": "018927d1-1370-4a37-a95a-6a599a8d8618",
+  "path": "apisix-gateway-ops",
+  "path_key": "apisix-gateway-ops",
   "enabled": true,
   "tags": [],
   "source": {
