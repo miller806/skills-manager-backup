@@ -58,7 +58,27 @@ python3 software_watch.py status    # 看清单现状
 ## policy 语义（关键设计）
 
 - `auto`：自动升级。默认只给 CLI 工具（gh/htop/tmux/qshell 等）和 npm 全局包。
-- `notify`：只报告。默认给运行时与大依赖（node、postgresql@16、ffmpeg、pipx、npm、python）+ 所有 cask（GUI 应用）。**`npm` 本身必须 notify**：11.x→12.x 是运行时大版本，各 profile 全靠它；2026-11-04 被 auto 拉到 12.2.1 后才发现（实测没炸，但属不该自动发生的事）。
+- `notify`：只报告。默认给运行时与大依赖（node、postgresql@16、ffmpeg、pipx、npm、python）+ 所有 cask（GUI 应用）。**`npm` 本身保持 notify**：11.x→12.x 是运行时大版本，各 profile 全靠它。
+  但 `upgrade --only=npm` 已可用且**只升 npm 自己**（不做 `npm -g update`，不碰全局包），见下节 npm 自升级。
+  想让自动巡检跨大版本升它：`UPDATE ... SET allow_major=true`（policy 可保持 notify，手动 `--only=npm` 发车）。
+
+## npm 自升级（`--only=npm` 已接入闭环）
+
+npm 自己是个全局包（brew 的 node 自带一份，同时又是 `/opt/homebrew/lib/node_modules/npm` 的 workspace 软链）。三条坑，任何一条都会变成「装了个新 npm 但系统里还是旧的」：
+
+1. **PATH 抢跑**：npm 预置的 PATH 里 `~/.hermes/tools/npm-<v>/bin`（Hermes 自装的新版）排在前面，`npm install -g npm` 的子进程 `npm` 立刻变成那份新版，接着它可能把全局 npm 降级回 9.x。必须用绝对路径。
+2. **node 错位**：网关 PATH 里的 node 可能是 `~/.hermes/tools/node-<v>/bin/node` 副本；npm 12 要 node>=20，碰到老副本直接失败。固定用 `/opt/homebrew/bin/node`。
+3. **workspace 软链静默不重建**：`/opt/homebrew/bin/npm → ../lib/node_modules/npm/bin/npm-cli.js`。目录里是新版但 `npm -v` 还是旧版，就是这条。
+
+实现在 `software_watch.py`：`NPM_SELF_*` 常量 + `npm_self_env()`（PATH 去掉 Hermes 自装 npm/node）、
+`npm_upgrade_command()`（`'/opt/homebrew/bin/node' '/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js' install -g 'npm@X' --prefix /opt/homebrew`）、
+`npm_self_verify()`（复核四件事：包版本、命令入口版本、`npm ls -g` 全局包完整、npm/npx 软链归属当前用户），
+rc=0 但不满足任一条 → `upgrade-failed`。
+
+- 实测（2026-11-19）：11.20.0 → 12.2.3 走 `upgrade --only=npm` 成功，11 个全局包完整、软链正常、`npm -v`=12.2.3。
+- 演练/回退：先把该行临时设 `policy='auto', allow_major=true`，跑 `upgrade --only=npm`；跑完改回 `notify/false`（`--only` 不动策略，但会把 DB 的 installed/latest 写实）。
+- npm 12 兼容 lockfile v3；本机实测 npm 全局包、wrangler/codex/npx 均正常。
+- 注意软件清单里 `node` 是 `policy=auto, allow_major=true`：brew 升 node 会把 npm 一起换回 brew 自带那份（可能低于自升的版本），升完节点后下一轮巡检会重新报 npm。
 - **npm 全局包里的常驻服务必须 notify**：`NOTIFY_NPM = {npm, omniroute}`；例外见下条 `AUTO_SERVICE_NPM`（脚本常量 + `discover()` 里生效，seed 是 `ON CONFLICT DO NOTHING`，重扫不会覆盖已调策略）。理由：升级要重启进程，重启失败比版本没升严重。纯 CLI 包（codex/wrangler/larksuite-cli/undici 等）保持 auto。
 - **`AUTO_SERVICE_NPM = {9router}`**：常驻服务但已接上「升级 → 重启 → 等就绪 → live 版本复核 → 再写库」闭环的，可以 auto。加这里的**前提**是 `READY_PROBES` + `LIVE_VERSION` 都登记了，否则重启失败会被记成成功（旧的写库顺序就是这毛病）。
 - **卸载一个包后要同步三处**，否则明天 cron 又把它的升级报出来，甚至被 seed 扫回清单：
