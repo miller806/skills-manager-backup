@@ -197,10 +197,20 @@ $SM --json skills adopt ~/.claude/skills --dry-run     # 列候选：但包含 s
 
 ### 本机已定型的收编结论（2026-11，h-ops）
 
-- **已收编 31 个 h-ops 自有技能 + research-tools**，`S·运维排障`（15）/`S·开发流程`（+github/debugging-tools/software-development-practices）/`M·技能管理`（+agent-skill-library-ops）/`T·研究资料`（research-tools）四个 preset 承载，部署到 claude_code/codex/pi + hermes-h-ops。
-- **不收编 `~/.hermes/skills`（default profile）里的 35 个技能**：那是另一个 profile 自己的库，收编等于替另一个会话改它，且会与 h-ops 的 `github`（同源不同版本）撞名。要收时由对应 profile 自己决定。
+- **Hermes 自己封装的技能一律不收编（用户的硬标准）**。识别特征：SKILL.md 有 `version:` + `metadata.hermes.tags`，或出现在 `~/.hermes/profiles/<p>/skills/.bundled_manifest`。这类技能归 Hermes 自身的封装/升级链管，收进 skills-manager 后 `update` 也只会是 `local`，且会与 Hermes 的版本产物打架。2026-11 已按此撤出 13 个（apple-integration、ascii-tools、box、gaming-tools、home-and-location、media-tools、mlops-tooling、music-production、github、debugging-tools、software-development-practices、audiocraft-audio-generation、segment-anything-model），原真目录已还原、库目录已删。
+- **只收「我们自己累积的运维/知识型」技能**：devops/*、经验型排障技能、`agent-skill-library-ops`、`research-tools` 这类无 `version:` 自己写的。
+- **不收编 `~/.hermes/skills`（default profile）里的技能**：那是另一个 profile 自己的库，收编等于替另一个会话改它。要收时由对应 profile 自己决定。
 - **分类子目录不需要为收编而拍平**：agent 目录可以是「分类目录 → 软链 → 库根」，Hermes 递归加载，链接计数与 `skill_targets` 一致即可。
 - 收编后**必须再 commit + push 一次**，否则别的机器与快照里没有这些技能目录（app 的 auto backup 有时不覆盖新目录）。
+
+### 收编后再撤销（回滚成散装）的正确顺序
+
+撤出时要**先还原真目录、再删库**，顺序反了会丢内容：
+
+1. `skills undeploy <names> --agent claude_code|codex|pi`（hermes-h-ops 那条撤不掉真目录，忽略）。
+2. 每个技能：`rm <agent 目录里的软链>` → `mv <备份目录的真目录> <原路径>`（备份按 `<分类>-<名>` 或 `sd-<名>` 命名，逐条核对别套错前缀）。
+3. 校验 `os.path.islink()` 为 False 且 `SKILL.md` 在 → 再 `skills remove <names> --yes`。
+4. 顺手清理库部署时在 agent 目录根部多建的**同名顶层软链**（分类目录里已有一份，留着就是重复技能）。
 
 ## 远端可能被别的机器改过 —— **绝不用 git 命令合并/推送**
 
