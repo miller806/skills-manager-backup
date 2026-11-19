@@ -4,5 +4,5 @@
   "name": "S·运维排障",
   "description": "主机巡检、K8s 与网关排障、入侵排查、CVE 影响评估、暴露面收敛、Flink CDC 与 XXL-JOB 作业运维、自托管服务",
   "icon": null,
-  "sort_order": 999
+  "sort_order": 8
 }
