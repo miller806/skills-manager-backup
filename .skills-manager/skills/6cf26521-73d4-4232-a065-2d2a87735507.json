@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "6cf26521-73d4-4232-a065-2d2a87735507",
+  "path": "baoyu-post-to-x",
+  "path_key": "baoyu-post-to-x",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "git",
+    "ref": "https://github.com/jimliu/baoyu-skills.git",
+    "subpath": "skills/baoyu-post-to-x",
+    "branch": null
+  }
+}

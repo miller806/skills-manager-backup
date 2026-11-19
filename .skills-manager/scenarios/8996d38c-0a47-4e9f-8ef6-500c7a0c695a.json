@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "scenario_id": "8996d38c-0a47-4e9f-8ef6-500c7a0c695a",
+  "name": "T·baoyu技能包",
+  "description": "第三方 baoyu-skills 全套：知识漫画、生图、图解/信息图、幻灯片、小红书卡片、多平台发布（微信/微博/X）、翻译与内容转换",
+  "icon": "🎨",
+  "sort_order": 999
+}
