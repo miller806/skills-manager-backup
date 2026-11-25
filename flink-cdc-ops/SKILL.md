@@ -251,6 +251,39 @@ io.cregis.cdc.internal.doris.flink.exception.DorisBatchLoadException:
 
 判据：日志里 `including table` 有、`Successfully applied schema change event CreateTableE` 没有 = 只有源端发现了新表，sink 没建表。
 
+### ⚠️ Doris 侧**物理上做不到**的两类 ALTER：nullable→NOT NULL / varchar 缩短
+
+`Can not change default value` 这个报错文案具有误导性——实测**与默认值无关**，真因是 Doris 拒绝「可空改非空」。
+在 `zz_` 临时表上逐一实测（Doris 5.7.99 / SelectDB）：
+
+```
+A  nullable → non-nullable        Can not change from nullable to non-nullable   ← 真正原因
+B  varchar(90) → varchar(32)      Shorten type length is prohibited
+C  在空表上做 A                    同样失败（与数据无关）
+D  换成无默认值的列再做 A          同样失败（与默认值无关）
+```
+
+所以「源库 `MODIFY COLUMN x varchar(32) NOT NULL`」这类 DDL，**在 Doris 侧无论怎么补数据/改默认值都做不了**，
+每次 checkpoint 恢复都会重放它 → 无限 failJob。容错 jar 也不覆盖（`TOLERATED_DORIS_DDL` 命中 0）。
+
+**唯一可行解：重建目标表**（百行级表秒完成；大表要评估）：
+
+```sql
+CREATE TABLE `ods_x`.`<t>_bak_<date>` AS SELECT * FROM `ods_x`.`<t>`;   -- 备份
+-- 建新表：把争议列写成源端的定义（非空 / 短长度）
+-- INSERT 搬数据 → 校验行数 → DROP 原表 → 重建 → 回灌
+```
+
+⚠️ **`ALTER TABLE db.t REPLACE WITH TABLE db.t2` 在某些 SelectDB 版本不支持库名前缀**，报
+`mismatched input '.' expecting {<EOF>, ';'}`（pos 指向 `db.`）。此时走 DROP+重建+回灌，别在语法上纠缠。
+
+⚠️ **`TRUNCATE`/`DROP` 原表之后必须走完全程**：中途 REPLACE 失败时数据只在备份表里，此时作业仍在 RESTARTING
+不会写入，是安全的；但**别在看到 REPLACE 报错后停手**，要继续重建 + 回灌，否则表会长时间空着。
+
+**先分清是不是这个类型**：查源库 `information_schema.columns` 与 Doris `SHOW FULL COLUMNS` 逐列比对，
+重点看「源 `is_nullable=NO` 且 `column_default IS NULL`，目标端却是 `NULL`」的列——这类列一旦被 ALTER 就会撞。
+（这套环境的通用模式是 Doris 侧一律建成可空，所以几乎所有非空列都是潜在雷。）
+
 ### 容错 jar 覆盖矩阵（更新）
 
 ```
@@ -468,6 +501,34 @@ ss -tni | 按裸 IP 过滤，比对两次采样的 bytes_received 增量
 **修复**：治本＝重启 TaskManager 进程（唯一能真杀线程）；快速绕过＝给该 pipeline 换一段**未被占用**的 `server-id`（孤儿占着旧段但碰不到新段）。换完不需要从 checkpoint 重启，卡的是连接不是状态。
 
 **同源副作用**：孤儿线程持有实例引用 → 作业 ClassLoader 无法回收 → 之后才触发类加载 → `NoClassDefFoundError: ErrorPacket / ColumnUtils`。这是**结果不是原因**，先用 `unzip -t` 排除 jar 损坏即可。
+
+## `jobmanager.sh stop` / `taskmanager.sh stop` 不杀进程（pid 文件过期）
+
+**症状**：`./bin/jobmanager.sh stop` 打印 `No standalonesession daemon (pid: NNN) is running anymore`，
+但 `ps` 里 JM 还在、8081 还占着、REST 仍是旧进程在应答。`taskmanager.sh stop` 同理，
+甚至会「停完更乱」——再 `start` 一次就多出一批新 TM，变成 4 个 TM / 48 slot。
+
+**原因**：`/tmp/flink-*-pid` 里的 pid 与真实进程不符（进程被 kill -9 过、或 pid 被复用）。
+`stop` 脚本只按 pid 文件操作，找不到就打印「已经不在了」，**并不去扫真实进程**。
+
+**正确姿势**：按进程特征 pgrep 杀，别信 stop 脚本：
+
+```bash
+pkill -f 'StandaloneSessionClusterEntrypoint'   # JM
+pkill -f 'TaskManagerRunner'                    # TM
+ss -tlnp | grep ':8081 ' || echo '8081 released'   # 确认端口释放再 start
+```
+
+⚠️ **`taskmanager.sh start` 每调一次就起一个新 TM**（只报「已有 N 个在跑」然后照样起，不做数量校验）。
+批量脚本里重复调用会瞬间把 slot 数翻倍。**启动前先 `pgrep -f TaskManagerRunner | wc -l` 确认是 0**，
+再按 `conf/workers` 的行数逐个 start。
+
+⚠️ **改完 S3/checkpoint 配置后 JM 和 TM 都必须重启**，并验证每个进程的启动时间都晚于配置修改时间：
+
+```bash
+stat -c '%y' conf/config.yaml | cut -c1-19        # 配置修改时间
+ps -eo pid,lstart,cmd | grep -E '[S]tandaloneSession|[T]askManagerRunner' | cut -c1-60
+```
 
 ## Standalone Session 集群：一份日志混着所有作业
 
@@ -742,6 +803,42 @@ C 回滚 config.yaml 到旧备份          仅当旧 AK 仍有效；先用 ListB
 ```
 
 **任何一条都必须 JM + TM 一起重启**，并且重启后 `GET /jobmanager/config` 的 `s3.*` 要等于磁盘值才算生效。
+
+### ⚠️ `path-style-access` 写成连字符版（或漏写）在 flink-s3-fs-presto 上无效
+
+`SecondLevelDomainForbidden` 的另一条成因，**不是 AK/bucket 问题**：配置里写了 `path-style-access` 却仍是 path-style 请求。
+
+**两个类读的键名不同**（解包 `flink-s3-fs-presto-*.jar` 读常量池可证）：
+
+```
+S3FileSystemFactory          映射出  presto.s3.path.style.access   （点号）
+                                       presto.s3.path-style-access  （连字符）
+PrestoS3FileSystem  真正读取的键      presto.s3.path.style.access   （只有点号）
+```
+
+`PrestoS3FileSystem` 的常量池里**没有** `presto.s3.path-style-access`。所以 config.yaml 写
+`s3.path-style-access: false`（连字符）→ factory 映射成同样连字符的 presto 键 → **Presto 读不到，回落到默认 path-style=true** → OSS 报 SecondLevelDomainForbidden。
+
+**正确写法（config.yaml 顶层）**：
+
+```yaml
+s3.endpoint: oss-cn-beijing.aliyuncs.com
+s3.path.style.access: false          # 点号！false = virtual-hosted，OSS 唯一可用形态
+s3.access-key: <AK>
+s3.secret-key: <SK>
+```
+
+**判定「配置到底生效没有」只看运行时，不看文件**：
+
+```
+GET /jobmanager/config | grep path.style     # 出现 s3.path.style.access=false 才算生效
+```
+
+⚠️ **「运行时显示 false、日志仍报 path-style」= 键名映射断在某一层**，此时不要继续调 AK / endpoint / bucket，回头核对键名点号还是连字符。
+
+⚠️ **改完必须 JM + TM 一起重启**：TM 也需要 presto S3 配置（写 checkpoint 走 TM）。只重启 JM 会出现
+「作业能 RUNNING 但 checkpoint 全部 failed」——恢复读走 JM 新配置（通了），写入走 TM 老配置（仍然 path-style）。
+判据：JM 日志 `SecondLevelDomainForbidden` 少、**TM 日志里成百上千次**，就是 TM 没重启。
 
 ### 顺带核 slot 总量：restored 循环会掩盖「作业根本起不来」
 
