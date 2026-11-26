@@ -333,6 +333,16 @@ LIVE_VERSION = {"9router": "http://127.0.0.1:20128/api/version"}  # 服务自报
 9router 的 `/api/version` 返回 `{currentVersion, latestVersion, hasUpdate}`，是天然的 live 版本探针；
 `/` 返回 307，别拿它判健康。托盘二进制今天仍 404 走 Rosetta 回退，是历史问题，不影响 API。
 
+⚠️ **`launchctl kickstart` 报 `Could not find service "com.9router.autostart"` = 该 LaunchAgent 已被用户手动停用**
+（plist 改名成 `com.9router.autostart.plist.disabled-<date>` 留在 `~/Library/LaunchAgents/`），不是脚本 bug，也**不要**擅自 bootstrap 回去。
+此时升级会「包升了但 20128 没进程」→ live 复核 HTTPError → 记 `upgrade-failed`（符合预期，别改判定逻辑）。
+补一次进程（让服务可用、`/v1/models` 返回 200）：
+```bash
+/opt/homebrew/bin/node /opt/homebrew/lib/node_modules/9router/cli.js --skip-update   # 用 terminal background=true 起，别 nohup
+```
+先确认有没有人在用：`grep base_url ~/.hermes/config.yaml ~/.hermes/profiles/*/config.yaml`（有 profile 指向 192.168.2.44:20128，说明它就是模型后端，必须拉起并复验 `/v1/models`）。
+恢复开机自启要用户在网关外终端跑 `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.9router.autostart.plist`（先把 `.disabled-*` 改回原名）。
+
 ### check 侧必须防「装了新版但进程还在跑旧版」的假绿
 
 `npm ls -g` 只反映**磁盘上的包**。升级成功但重启失败时，下一轮 check 会算出
@@ -390,6 +400,15 @@ cd /Users/miller/.hermes/profiles/h-ops/scripts
 `find ~/.hermes /opt/homebrew -path '*/node_modules/npm/package.json'` 可看出机器上有几份不同版本的 npm。
 
 ## 坑（踩过的）
+
+- **`brew upgrade python` 会静默打断两条链，cron 直接红叉**（2026-11-27 实际踩到，连续 3 天「缺少 psycopg2」`Script exited with code 1`）。
+  两个 venv 都是**软链到版本号路径**，brew 一升旧 Cellar 目录就消失 ⇒ 软链悬空、解释器彻底没了（不是「包没装」）：
+  1. `scripts/.venv-sw/bin/python -> /opt/homebrew/opt/python@3.14/...`（巡检脚本自己）
+  2. `~/.local/pipx/venvs/*/bin/python`（所有 pipx 包 → `invalid interpreter`，pipx upgrade 全失败；只有 yt-dlp 被报出来是因为它恰好在 auto 列表里）
+  排错：`ls -la .venv-sw/bin/python*` 看软链目标是否存在 → `/opt/homebrew/bin/python3 -V` 看当前 brew python 版本。
+  修复：用新 brew python 重建 `.venv-sw`（`python3 -m venv .venv-sw` 后 `pip install psycopg2-binary`，旧目录直接删）；
+  pipx 用 **`pipx reinstall-all`**（不是 `upgrade-all`），装完再 `pipx list --short` 确认没 `invalid interpreter`。
+  预防：升 python@X.Y 之前先 `ls -la .venv-sw/bin/python ~/.local/pipx/venvs/*/bin/python` 记下依赖面。
 
 - **`brew untap` 会要求连带卸载该 tap 里的包**（`--force` 也是先卸后 untap），不是单纯删仓库。有包在用就别 untap，改用下面「静音第三方 tap」的做法。
 - **静音一个连不上的第三方 tap（保留包、保留 formula）**：把该 tap 仓库的 origin 指向自己，fetch 立即成功且不联网：
