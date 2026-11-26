@@ -150,7 +150,30 @@ grep -rln "Cellar/node/" ~/.hermes/config.yaml ~/.hermes/profiles/*/config.yaml 
 
 统一 `sed -i '' 's|/opt/homebrew/Cellar/node/[0-9.]*/bin/node|/opt/homebrew/bin/node|g'`，然后 `plutil -lint` + `python3 -c 'import yaml;yaml.safe_load(...)'` 逐个校验。
 
-### 9router 特例
+## 已退役：9router（2026-11-27，用户决定）
+
+`9router`（20128，Hermes 曾用它当模型后端）已彻底删除，**不要再装回来、不要加回巡检清单**。
+检索面（删一个常驻服务必查这几处，顺序照抄）：
+
+```bash
+grep -rn "20128\|<包名>" ~/.hermes/config.yaml ~/.hermes/profiles/*/config.yaml      # ① 各 profile 引用
+ps -eo pid,command | grep -i <包名>; nc -z -G 3 127.0.0.1 <port>                      # ② 进程/端口
+launchctl list | grep -i <包名>; ls ~/Library/LaunchAgents | grep -i <包名>            # ③ launchd
+/opt/homebrew/bin/npm uninstall -g <包名>                                             # ④ 包
+```
+
+- ① 里**每个 profile** 都有两处：`auxiliary.{vision,compression}.provider: custom:9router` 和 `custom_providers` 列表项。
+  删列表项要连带其后所有缩进行；`auxiliary` 里把 `provider` 改回 `auto` 并**删掉紧跟的 `model` 行**
+  （否则 auto provider 配着 9router 专属模型名，运行时才炸）。
+  改完必跑 `yaml.safe_load` 逐个校验，再抽查 model / discord / cron / mcp_servers 字段还在。
+- ③ launchd plist 若是用户手动停用的形态（`plist.disabled-<date>`），**归档到 backups**，别留在 LaunchAgents 里当噪声。
+- ⑤ 巡检侧要同时清四处：`RETIRED` 加包名、`AUTO_SERVICE_NPM` / `PROBE_PORTS` / `READY_PROBES` / `LIVE_VERSION` 删条目、
+  `DELETE FROM public.software_watch WHERE name='<包名>'`。**只删 DB 行不够，只删常量也不够**；
+  改完跑 `test_software_watch_ready.py`，里面的断言会指出还有哪张表漏了。
+- 备份/回滚目录：`~/.hermes/profiles/h-ops/backups/<事情>-<ts>/`（本次 8 个 config + plist）。回滚就是拷回去。
+- 改完 config 需要重启网关才彻底生效；网关生命周期命令只能由用户在网关外的终端执行，代理内部发起会被护栏拦。
+
+### 9router 特例（2026-11-27 已退役，仅存档）
 
 - `ai.hermes.gateway-h-finance` 常驻 78 (EX_CONFIG) 退出是**历史问题**：telegram token 与 default profile 冲突，2026-08 就已存在，不是 node 升级造成的。查这类「是不是我刚才弄坏的」先 `grep` 错误日志最早时间戳，别猜。
 
