@@ -37,6 +37,18 @@ cd ~/.skills-manager/skills && git status --short && git log --oneline -15   # �
 
 最后核对锁：`cat ~/.skills-manager/.skills-manager.lock` —— app 在跑（`operation=check skill update` 等）时不要做写操作。
 
+**断链扫描必做**（每次巡检都跑，尤其在 update / 撤退 / 收编之后）：
+
+```bash
+for a in ~/.claude/skills ~/.codex/skills ~/.pi/agent/skills ~/.hermes/skills ~/.hermes/profiles/h-ops/skills; do
+  find $a -maxdepth 3 -type l ! -exec test -e {} \; -print
+done
+```
+
+- `~/.hermes/skills/.archive/` 里的断链是历史归档残留，**报一句即可，不用修**。
+- 出现在 agent 根或分类目录里的断链（如 `.claude/skills/kimi-webbridge` 指向库中已被删的目录）= 真故障，要改回真目录或删链。
+- `skill_targets` 的行数与「目录里指向库的软链数」对不上时，差的那几条就是真目录或散装软链，不能当作已部署。注意 `skill_targets` 的列叫 `tool` 不是 `agent_key`，`scenarios` 表也没有 `skill_count` 列（要 `COUNT(*) FROM scenario_skills`）。
+
 ## 三个状态必须分开说（最大的坑）
 
 | 状态 | 看什么 | 别拿它当 |
@@ -98,6 +110,9 @@ tail -3 ~/Library/Logs/com.agentskills.desktop/skills-manager.log   # TLS 失败
 - 一次 `update --all` 是**写操作**（会改库内文件与 `source_revision`），跑之前先打快照：`tar czf ~/skills-manager-backups/pre-update-$(date +%Y%m%d-%H%M%S).tar.gz skills-manager.db* skills`。
 - 跑完看 `SELECT update_status, COUNT(*) FROM skills GROUP BY update_status;` 应该是全 `up_to_date`。
 - `refreshed:false` 且无 `error` = 已是最新；`refreshed:true` = 这次真拉取了新内容。
+- ⚠️ **`local` 源也会报 `refreshed:true`**：那是「重读本地目录」，不是上游更新，报告时别算进去（63 个技能里 15 个 local 永远 true）。
+- ⚠️ **一次 `update --all` 里有 skillssh/git 报 `-9806` 时，别急着翻译成「代理没配」**：同一轮里 git 源能刷新说明代理是通的，-9806 是并发 SSL 握手抖动。原样再跑一次 `update --all`，实测 8 个错误全部自愈。
+- ⚠️ **skillssh 来源的新内容不会自己进 git**：`$SM git commit` 只提交「有 `refreshed` 的 git/local 源」目录。实测 skillssh 的 `with_server.py` 等文件出现在 `git status` 里但没进任何提交（`git log -1 --stat` 可见），要再 `$SM git commit -m "skills: refresh skillssh content ..."` + push 一次，否则别的机器拿不到。
 
 ### `Path ... does not exist in the repository` 的修法
 
@@ -260,6 +275,16 @@ $SM --json git push
 - 走 SSH remote（`git@github.com:...`）时**不必**设 `HTTPS_PROXY` 也能通；只有 skillssh 拉取内容才需要代理。
 
 **重写/强制推送的唯一例外 —— `git reset --hard` 可以用**：把本地指针移到远端已有提交上不产生 merge 提交，因此不造毒；前提是先 `git rev-parse HEAD^{tree} origin/main^{tree}` 两边相同（内容零差异）。任何产生 merge 提交的命令依旧禁止。full 流程见 `references/git-sync-repair.md`。
+
+## 自写技能改了内容之后必须同步回库（最大的隐坑）
+
+`local` 源的技能库目录只是一份**快照**：如果 agent 侧是真目录，`skill_manage` 改的是真目录，库里那份是旧的；下一次 `skills update` 会用库里的旧内容把改动**覆盖掉**（`refreshed:true` 就是这个动作）。反过来 agent 侧是 symlink 指向库时，`skill_manage` 写的就是库里那份，update 不会丢。
+
+改完自写技能（尤其本技能这种会用 `skill_manage` 自改的）之后：
+
+1. 先判 `ls -l <agent>/skills/<分类>/<name>`：symlink → 改动已在库里，直接收尾；真目录 → 走第 2 步。
+2. 把新内容同步进库：`cp` 覆盖 `~/.skills-manager/skills/<name>/`，再 `$SM skills update <name>` 让 update_status 回 `up_to_date`；或删库目录 + `$SM skills adopt <真目录>` 重新收编（会丢原 source/tag/preset，只在源也变了时选）。
+3. 收尾 `$SM git commit` + push。
 
 ## 报告格式（本用户偏好）
 
