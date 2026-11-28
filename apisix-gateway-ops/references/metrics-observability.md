@@ -1,6 +1,31 @@
-# APISIX 指标接观测（2026-11 实测于 192.168.2.100 / apisix 3.13.0-ubuntu）
+# APISIX 指标接观测（2026-11 实测于 192.168.2.100）
 
-## 关键结论：9091 读不到 → privileged agent 起不来
+## 修通 9091（2026-11-28 实修，apisix 3.20.0-ubuntu 生效）
+
+根因**不是** privileged agent 起不来：3.20 里 `ps` 能看到 `privileged agent process`，
+`/proc/1/status` Uid=636、`CapEff: 0` 也能跑。容器外 RST 的唯一原因是 metrics server 只绑 `127.0.0.1`。
+**配置层一处搞定，不需要 privileged / cap_add / 改 nginx.conf 模板**：
+
+```yaml
+# apisix_conf/config.yaml 末尾
+plugin_attr:
+  prometheus:
+    export_addr:
+      ip: "0.0.0.0"
+      port: 9091
+```
+
+`docker compose restart apisix`（~12s）→ 容器内 nginx.conf 自动渲染成 `listen 0.0.0.0:9091 reuseport;`
+→ 宿主 `curl 127.0.0.1:9091/apisix/prometheus/metrics` 返回 200，约 130 行指标
+（`apisix_http_*` / `apisix_nginx_*` / `apisix_etcd_*`，含 `process="privileged-agent"` 系列）。
+默认值在容器内 `apisix/cli/config.lua` 的 `plugin_attr.prometheus`（export_addr.ip=127.0.0.1），排查以它为准。
+
+⚠️ **别用 `nginx_config.main_configuration_snippet` 加 server 块覆盖**：该 snippet 渲染在 main context
+（http 块之外），`server` 指令非法 → apisix 进 `Restarting` 循环，日志
+`nginx: [emerg] "server" directive is not allowed here in .../nginx.conf:8`。
+出这个状况立刻 `cp -a /root/config.yaml.bak-<ts> config.yaml && docker compose restart apisix` 回滚。
+
+## 旧结论（3.13 时代）：9091 读不到 → privileged agent 起不来
 
 `conf/nginx.conf` 里的 metrics server 是：
 
